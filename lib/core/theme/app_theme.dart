@@ -32,6 +32,21 @@ class AppTheme {
   );
 
   static final theme = _darkTheme.copyWith(
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: AppColors.darkBg100,
+      indicatorColor: AppColors.darkPrimary200,
+      elevation: 2,
+      iconTheme: const WidgetStatePropertyAll<IconThemeData>(
+        IconThemeData(color: AppColors.darkPrimary300),
+      ),
+      labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((state) {
+        if (state.contains(WidgetState.selected)) {
+          return const TextStyle(color: AppColors.darkText200);
+        }
+
+        return const TextStyle(color: AppColors.darkPrimary300);
+      }),
+    ),
     dialogTheme: DialogTheme(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
