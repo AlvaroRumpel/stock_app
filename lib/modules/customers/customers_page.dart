@@ -16,6 +16,32 @@ class CustomersPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: OutlinedButton(
+                onPressed:
+                    (
+                      //context.goNamed('');
+                    ) {},
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: AppColors.darkPrimary300),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                ),
+                child: const Text(
+                  "Novo cliente",
+                  style: TextStyle(
+                    color: AppColors.darkPrimary300,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
             CustomerInfo(name: "Vick", phone: "55 999271130"),
             CustomerInfo(name: "Jorge", phone: "40028922"),
           ],
