@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../core/router/app_router.dart';
 
 class CustomersPage extends StatelessWidget {
   const CustomersPage({super.key});
@@ -19,10 +21,9 @@ class CustomersPage extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: OutlinedButton(
-                onPressed:
-                    (
-                      //context.goNamed('');
-                    ) {},
+                onPressed: () {
+                  context.goNamed(RouteName.createCustomer.name);
+                },
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: AppColors.darkPrimary300),
                   shape: RoundedRectangleBorder(
