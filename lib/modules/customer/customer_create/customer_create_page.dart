@@ -18,18 +18,18 @@ class CustomerCreatePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                "Preencha os dados para cadastrar o cliente",
+                'preencha os dados para cadastrar o cliente',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
                   color: AppColors.darkPrimary300,
                 ),
               ),
-              _buildTextField("Nome"),
-              _buildTextField("Celular"),
-              _buildTextField("Endereço"),
-              _buildTextField("Cidade"),
-              _buildTextField("Observação"),
+              _buildTextField('Nome'),
+              _buildTextField('Celular'),
+              _buildTextField('Endereço'),
+              _buildTextField('Cidade'),
+              _buildTextField('Observação'),
               const SizedBox(height: 24),
               _buildButtons(context),
             ],
@@ -68,7 +68,7 @@ Widget _buildTextField(String label) {
       ),
       validator:
           (value) =>
-              (value == null || value.isEmpty) ? "Campo obrigatório" : null,
+              (value == null || value.isEmpty) ? 'Campo obrigatório' : null,
     ),
   );
 }
@@ -103,7 +103,7 @@ Widget _buildButtons(BuildContext context) {
             context.goNamed(RouteName.customers.name);
           },
           style: OutlinedButton.styleFrom(
-            side: BorderSide(color: AppColors.darkPrimary300, width: 2),
+            side: const BorderSide(color: AppColors.darkPrimary300, width: 2),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(100),
             ),

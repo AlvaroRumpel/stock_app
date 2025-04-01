@@ -25,7 +25,7 @@ class CustomersPage extends StatelessWidget {
                   context.goNamed(RouteName.createCustomer.name);
                 },
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: AppColors.darkPrimary300),
+                  side: const BorderSide(color: AppColors.darkPrimary300),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -35,7 +35,7 @@ class CustomersPage extends StatelessWidget {
                   ),
                 ),
                 child: const Text(
-                  "Novo cliente",
+                  'Novo cliente',
                   style: TextStyle(
                     color: AppColors.darkPrimary300,
                     fontSize: 16,
@@ -43,8 +43,8 @@ class CustomersPage extends StatelessWidget {
                 ),
               ),
             ),
-            CustomerInfo(name: "Vick", phone: "55 999271130"),
-            CustomerInfo(name: "Jorge", phone: "40028922"),
+            const CustomerInfo(name: 'Vick', phone: '55 999271130'),
+            const CustomerInfo(name: 'Jorge', phone: '40028922'),
           ],
         ),
       ),
@@ -59,7 +59,7 @@ class CustomerInfo extends StatelessWidget {
   final String phone;
 
   String getInitials(String name) {
-    return name.isNotEmpty ? name[0].toUpperCase() : "?";
+    return name.isNotEmpty ? name[0].toUpperCase() : '?';
   }
 
   @override
@@ -79,7 +79,7 @@ class CustomerInfo extends StatelessWidget {
             radius: 24,
             child: Text(
               getInitials(name),
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppColors.lightAvatar100,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
