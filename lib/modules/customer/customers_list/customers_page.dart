@@ -12,7 +12,7 @@ class CustomersPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Clientes')),
       body: Container(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           spacing: 16,
           mainAxisSize: MainAxisSize.max,

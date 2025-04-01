@@ -65,7 +65,7 @@ class AppRouter {
                       GoRoute(
                         path: RouteName.createCustomer.path,
                         name: RouteName.createCustomer.name,
-                        parentNavigatorKey: _sectionNavigatorKey,
+                        parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) => const CustomerCreatePage(),
                       ),
                     ],
