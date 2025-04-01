@@ -26,6 +26,8 @@ class AppColors {
   static const Color darkBg100 = Color(0xFF1A1F2B);
   static const Color darkBg200 = Color(0xFF292E3B);
   static const Color darkBg300 = Color(0xFF414654);
+  static const Color darkAvatar100 = Color(0xFFFBB02D);
+  static const Color darkAvatar200 = Color(0xFFFFF9DB);
 
   /// Method to get color based on theme mode
   static Color getColor(
