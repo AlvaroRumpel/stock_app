@@ -87,9 +87,27 @@ class CustomerInfo extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [Text(name), const SizedBox(height: 4), Text(phone)],
+          GestureDetector(
+            onTap: () {
+              context.goNamed(
+                RouteName.customersDetails.name,
+                extra: {'name': name, 'phone': phone},
+              );
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(phone, style: const TextStyle(fontSize: 14)),
+              ],
+            ),
           ),
         ],
       ),
