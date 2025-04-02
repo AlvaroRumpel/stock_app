@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../modules/customer/customer_create/customer_create_page.dart';
+import '../../modules/customer/customer_details/customer_details.dart';
 import '../../modules/customer/customers_list/customers_page.dart';
 import '../../modules/home/home_page.dart';
 import '../../modules/sales/sales_page.dart';
@@ -67,6 +68,12 @@ class AppRouter {
                         name: RouteName.createCustomer.name,
                         parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) => const CustomerCreatePage(),
+                      ),
+                      GoRoute(
+                        path: RouteName.customersDetails.path,
+                        name: RouteName.customersDetails.name,
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) => const CustomerDetails(),
                       ),
                     ],
                   ),
