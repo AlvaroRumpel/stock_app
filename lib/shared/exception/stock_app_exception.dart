@@ -17,3 +17,13 @@ class StockAppException implements Exception {
     return message;
   }
 }
+
+class FailedToInsert extends StockAppException {
+  FailedToInsert({String? message, super.error, super.stackTrace})
+    : super(message: message ?? 'Erro ao inserir os dados');
+}
+
+class FailedToFetch extends StockAppException {
+  FailedToFetch({String? message, super.error, super.stackTrace})
+    : super(message: message ?? 'Erro ao buscar os dados');
+}

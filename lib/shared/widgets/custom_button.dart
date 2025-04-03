@@ -45,7 +45,7 @@ class CustomButton extends StatelessWidget {
     ),
     _CustomButtonType.outlined => OutlinedButton.icon(
       onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
+      style: OutlinedButton.styleFrom(
         backgroundColor: backgroundColor,
         iconColor: _iconColor,
       ),

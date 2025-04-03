@@ -8,6 +8,12 @@ import '../exception/exceptions.dart';
 import 'remote_data_service.dart';
 
 class RemoteDataServiceImpl implements RemoteDataService {
+  static RemoteDataServiceImpl? _instance;
+  // Avoid self instance
+  RemoteDataServiceImpl._();
+  static RemoteDataServiceImpl get instance =>
+      _instance ??= RemoteDataServiceImpl._();
+
   final _client = Supabase.instance.client;
 
   // AUTHENTICATION SECTION
@@ -110,9 +116,7 @@ class RemoteDataServiceImpl implements RemoteDataService {
   }
 
   @override
-  Future<void> signInWithPhoneNumber({
-    required String phoneNumber,
-  }) async {
+  Future<void> signInWithPhoneNumber({required String phoneNumber}) async {
     try {
       await _client.auth.signInWithOtp(
         phone: phoneNumber,
@@ -155,7 +159,7 @@ class RemoteDataServiceImpl implements RemoteDataService {
   // DATABASE SECTION
 
   @override
-  Future<List<Map<String, dynamic>>?> fetchData(
+  Future<List<Map<String, dynamic>>> fetchData(
     String table, {
     Map<String, dynamic>? filters,
   }) async {
@@ -169,7 +173,7 @@ class RemoteDataServiceImpl implements RemoteDataService {
       }
 
       final response = await query;
-      return response as List<Map<String, dynamic>>?;
+      return response;
     } catch (e, s) {
       throw RemoteDataException(
         message: 'Error on fetch data in $table',
@@ -255,9 +259,8 @@ class RemoteDataServiceImpl implements RemoteDataService {
   @override
   Future<void> deleteDataById(String table, String id) async {
     try {
-      final result = await _client.from(table).delete().match(
-        {'id': id},
-      ).select();
+      final result =
+          await _client.from(table).delete().match({'id': id}).select();
 
       if (kDebugMode) {
         print(result);
@@ -310,7 +313,8 @@ class RemoteDataServiceImpl implements RemoteDataService {
   Stream<List<Map<String, dynamic>>> subscribe(String table) {
     return _client
         .from(table)
-        .stream(primaryKey: ['*']).asyncMap((event) => event);
+        .stream(primaryKey: ['*'])
+        .asyncMap((event) => event);
   }
 
   @override

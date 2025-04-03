@@ -3,10 +3,9 @@ import 'package:flutter/services.dart';
 
 import '../utils/validation.dart';
 
-class CustomTextField extends StatefulWidget {
+class CustomTextField extends StatelessWidget {
   const CustomTextField({
     super.key,
-    this.obscureText = false,
     required this.controller,
     required this.hintText,
     required this.labelText,
@@ -14,60 +13,33 @@ class CustomTextField extends StatefulWidget {
     this.prefixIcon,
     this.inputFormatters,
     this.keyboardType,
+    this.maxLines,
   });
 
   final TextEditingController controller;
-  final bool obscureText;
   final String labelText;
   final String hintText;
   final IconData? prefixIcon;
   final List<Validation>? validators;
   final List<TextInputFormatter>? inputFormatters;
   final TextInputType? keyboardType;
-
-  @override
-  State<CustomTextField> createState() => _CustomTextFieldState();
-}
-
-class _CustomTextFieldState extends State<CustomTextField> {
-  var _isObscure = false;
-
-  @override
-  void initState() {
-    _isObscure = widget.obscureText;
-    super.initState();
-  }
+  final int? maxLines;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       onTapOutside: (_) => FocusScope.of(context).unfocus(),
-      controller: widget.controller,
-      keyboardType: widget.keyboardType,
+      controller: controller,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
       decoration: InputDecoration(
-        labelText: widget.labelText,
-        hintText: widget.hintText,
-        prefixIcon: Icon(widget.prefixIcon),
-        suffixIcon:
-            widget.obscureText
-                ? IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _isObscure = !_isObscure;
-                    });
-                  },
-                  icon: Icon(
-                    _isObscure
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                  ),
-                )
-                : null,
+        labelText: labelText,
+        hintText: hintText,
+        prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
       ),
-      obscureText: _isObscure,
-      validator: widget.validators?.validate,
+      validator: validators?.validate,
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      inputFormatters: widget.inputFormatters,
+      inputFormatters: inputFormatters,
     );
   }
 }

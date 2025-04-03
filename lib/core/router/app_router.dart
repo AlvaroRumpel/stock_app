@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../modules/customer/customer_create/cubit/customer_create_cubit.dart';
 import '../../modules/customer/customer_create/customer_create_page.dart';
 import '../../modules/customer/customer_details/customer_details.dart';
 import '../../modules/customer/customers_list/customers_page.dart';
 import '../../modules/home/home_page.dart';
 import '../../modules/sales/sales_page.dart';
 import '../../modules/stok/stok_page.dart';
+import '../../shared/repositories/customer_repository.dart';
+import '../../shared/services/remote_data_service_impl.dart';
 import '../../shared/widgets/scaffold_with_navigation_bar.dart';
 
 part 'route_name.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
-final _sectionNavigatorKey = GlobalKey<NavigatorState>();
 
 class AppRouter {
   final GoRouter router;
@@ -61,13 +64,34 @@ class AppRouter {
                   GoRoute(
                     path: RouteName.customers.path,
                     name: RouteName.customers.name,
-                    builder: (context, state) => const CustomersPage(),
+                    builder:
+                        (context, state) => RepositoryProvider(
+                          create:
+                              (context) => CustomerRepository(
+                                remote: RemoteDataServiceImpl.instance,
+                              ),
+                          child: const CustomersPage(),
+                        ),
                     routes: [
                       GoRoute(
                         path: RouteName.createCustomer.path,
                         name: RouteName.createCustomer.name,
                         parentNavigatorKey: _rootNavigatorKey,
-                        builder: (context, state) => const CustomerCreatePage(),
+                        builder:
+                            (context, state) => RepositoryProvider(
+                              create:
+                                  (context) => CustomerRepository(
+                                    remote: RemoteDataServiceImpl.instance,
+                                  ),
+                              child: BlocProvider(
+                                create:
+                                    (context) => CustomerCreateCubit(
+                                      customerRepository:
+                                          context.read<CustomerRepository>(),
+                                    ),
+                                child: const CustomerCreatePage(),
+                              ),
+                            ),
                       ),
                       GoRoute(
                         path: RouteName.customersDetails.path,
