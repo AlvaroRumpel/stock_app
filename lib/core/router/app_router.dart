@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../modules/customer/customer_create/cubit/customer_create_cubit.dart';
 import '../../modules/customer/customer_create/customer_create_page.dart';
-import '../../modules/customer/customer_details/customer_details.dart';
+import '../../modules/customer/customers_list/cubit/customer_list_cubit.dart';
 import '../../modules/customer/customers_list/customers_page.dart';
 import '../../modules/home/home_page.dart';
 import '../../modules/sales/sales_page.dart';
@@ -70,7 +70,14 @@ class AppRouter {
                               (context) => CustomerRepository(
                                 remote: RemoteDataServiceImpl.instance,
                               ),
-                          child: const CustomersPage(),
+                          child: BlocProvider(
+                            create:
+                                (context) => CustomerListCubit(
+                                  customerRepository:
+                                      context.read<CustomerRepository>(),
+                                ),
+                            child: const CustomersPage(),
+                          ),
                         ),
                     routes: [
                       GoRoute(
@@ -97,7 +104,7 @@ class AppRouter {
                         path: RouteName.customersDetails.path,
                         name: RouteName.customersDetails.name,
                         parentNavigatorKey: _rootNavigatorKey,
-                        builder: (context, state) => const CustomerDetails(),
+                        builder: (context, state) => const CustomersPage(),
                       ),
                     ],
                   ),

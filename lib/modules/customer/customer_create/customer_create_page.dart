@@ -49,7 +49,7 @@ class _CustomerCreatePageState extends State<CustomerCreatePage>
     return BlocListener<CustomerCreateCubit, CustomerCreateState>(
       listener: (context, state) {
         if (state is CustomerCreateSuccessCreate) {
-          context.pop();
+          context.pop(true);
           showSuccess(context, 'Cliente cadastrado com sucesso!');
           return;
         }

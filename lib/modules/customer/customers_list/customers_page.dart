@@ -1,51 +1,104 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../core/router/app_router.dart';
+import '../../../shared/utils/message_mixin.dart';
+import 'cubit/customer_list_cubit.dart';
 
-class CustomersPage extends StatelessWidget {
+class CustomersPage extends StatefulWidget {
   const CustomersPage({super.key});
 
   @override
+  State<CustomersPage> createState() => _CustomersPageState();
+}
+
+class _CustomersPageState extends State<CustomersPage> with MessageMixin {
+  late final CustomerListCubit _cubit;
+
+  @override
+  void initState() {
+    _cubit = context.read<CustomerListCubit>();
+    _cubit.fetchAllCustomers();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Clientes')),
-      body: Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          spacing: 16,
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: OutlinedButton(
-                onPressed: () {
-                  context.goNamed(RouteName.createCustomer.name);
-                },
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.darkPrimary300),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+    return BlocListener<CustomerListCubit, CustomerListState>(
+      listener: (context, state) {
+        if (state is CustomListError) {
+          showError(context, 'Erro ao carregar clientes');
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Clientes')),
+        body: BlocSelector<CustomerListCubit, CustomerListState, bool>(
+          selector: (state) => state is CustomerListLoading,
+          builder: (context, isLoading) {
+            if (isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final customers = _cubit.customers;
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                spacing: 16,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        final result = await context.pushNamed(
+                          RouteName.createCustomer.name,
+                        );
+                        if (result == true) {
+                          _cubit.fetchAllCustomers();
+                        }
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppColors.darkPrimary300),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                      ),
+                      child: const Text(
+                        'Novo cliente',
+                        style: TextStyle(
+                          color: AppColors.darkPrimary300,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
                   ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
-                ),
-                child: const Text(
-                  'Novo cliente',
-                  style: TextStyle(
-                    color: AppColors.darkPrimary300,
-                    fontSize: 16,
-                  ),
-                ),
+                  if (customers.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 32),
+                      child: Center(child: Text('Nenhum cliente encontrado')),
+                    )
+                  else
+                    Column(
+                      spacing: 12,
+                      children:
+                          customers
+                              .map(
+                                (c) =>
+                                    CustomerInfo(name: c.name, phone: c.phone),
+                              )
+                              .toList(),
+                    ),
+                ],
               ),
-            ),
-            const CustomerInfo(name: 'Vick', phone: '55 999271130'),
-            const CustomerInfo(name: 'Jorge', phone: '40028922'),
-          ],
+            );
+          },
         ),
       ),
     );
