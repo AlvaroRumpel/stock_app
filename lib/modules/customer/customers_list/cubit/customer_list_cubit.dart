@@ -8,7 +8,6 @@ part 'customer_list_state.dart';
 
 class CustomerListCubit extends Cubit<CustomerListState> {
   final CustomerRepository _repo;
-  List<Customer> customers = [];
 
   CustomerListCubit({required CustomerRepository customerRepository})
     : _repo = customerRepository,
@@ -18,9 +17,9 @@ class CustomerListCubit extends Cubit<CustomerListState> {
     try {
       emit(CustomerListLoading());
 
-      customers = await _repo.getCustomers();
+      final customers = await _repo.getCustomers();
 
-      emit(CustomerListSuccess());
+      emit(CustomerListSuccess(customers: customers));
     } catch (e) {
       emit(CustomListError());
     }

@@ -11,6 +11,10 @@ final class CustomerListInitial extends CustomerListState {}
 
 final class CustomerListLoading extends CustomerListState {}
 
-final class CustomerListSuccess extends CustomerListState {}
+final class CustomerListSuccess extends CustomerListState {
+  final List<Customer> customers;
+
+  const CustomerListSuccess({required this.customers});
+}
 
 final class CustomListError extends CustomerListState {}

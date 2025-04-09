@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../core/router/app_router.dart';
+import '../../../shared/utils/context_extensions.dart';
 import '../../../shared/utils/message_mixin.dart';
 import 'cubit/customer_list_cubit.dart';
 
@@ -34,120 +35,125 @@ class _CustomersPageState extends State<CustomersPage> with MessageMixin {
       },
       child: Scaffold(
         appBar: AppBar(title: const Text('Clientes')),
-        body: BlocSelector<CustomerListCubit, CustomerListState, bool>(
-          selector: (state) => state is CustomerListLoading,
-          builder: (context, isLoading) {
-            if (isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            final customers = _cubit.customers;
-
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                spacing: 16,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: OutlinedButton(
-                      onPressed: () async {
-                        final result = await context.pushNamed(
+        body: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            spacing: 16,
+            children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: OutlinedButton(
+                  onPressed: () async {
+                    final result =
+                        (await context.pushNamed<bool>(
                           RouteName.createCustomer.name,
-                        );
-                        if (result == true) {
-                          _cubit.fetchAllCustomers();
-                        }
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.darkPrimary300),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                      ),
-                      child: const Text(
-                        'Novo cliente',
-                        style: TextStyle(
-                          color: AppColors.darkPrimary300,
-                          fontSize: 16,
-                        ),
-                      ),
+                        )) ??
+                        false;
+
+                    if (result) {
+                      _cubit.fetchAllCustomers();
+                    }
+                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
                     ),
                   ),
-                  if (customers.isEmpty)
-                    const Padding(
+                  child: const Text(
+                    'Novo cliente',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ),
+              BlocBuilder<CustomerListCubit, CustomerListState>(
+                builder: (context, state) {
+                  if (state is CustomerListLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final customers =
+                      state is CustomerListSuccess ? state.customers : null;
+
+                  if (customers == null) {
+                    return const Center(child: Text('Erro ao buscar clientes'));
+                  }
+
+                  return Visibility(
+                    visible: customers.isNotEmpty,
+                    replacement: const Padding(
                       padding: EdgeInsets.only(top: 32),
                       child: Center(child: Text('Nenhum cliente encontrado')),
-                    )
-                  else
-                    Column(
-                      spacing: 12,
-                      children:
-                          customers
-                              .map(
-                                (c) =>
-                                    CustomerInfo(name: c.name, phone: c.phone),
-                              )
-                              .toList(),
                     ),
-                ],
+                    child: Expanded(
+                      child: ListView.separated(
+                        itemCount: customers.length,
+                        itemBuilder: (context, index) {
+                          return _CustomerCard(
+                            name: customers[index].name,
+                            phone: customers[index].phone,
+                          );
+                        },
+                        separatorBuilder:
+                            (context, index) => const SizedBox(height: 12),
+                      ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class CustomerInfo extends StatelessWidget {
-  const CustomerInfo({super.key, required this.name, required this.phone});
+class _CustomerCard extends StatelessWidget {
+  const _CustomerCard({required this.name, required this.phone});
 
   final String name;
   final String phone;
 
-  String getInitials(String name) {
+  String get initials {
     return name.isNotEmpty ? name[0].toUpperCase() : '?';
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 408,
-      padding: const EdgeInsets.only(top: 8, right: 24, bottom: 8, left: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
-        color: AppColors.darkBg200,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          CircleAvatar(
-            backgroundColor: AppColors.lightAvatar200,
-            radius: 24,
-            child: Text(
-              getInitials(name),
-              style: const TextStyle(
-                color: AppColors.lightAvatar100,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+    return InkWell(
+      onTap: () {
+        context.goNamed(
+          RouteName.customersDetails.name,
+          extra: {'name': name, 'phone': phone},
+        );
+      },
+      borderRadius: BorderRadius.circular(30),
+      child: Ink(
+        width: context.width,
+        padding: const EdgeInsets.only(top: 8, right: 24, bottom: 8, left: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          color: AppColors.darkBg200,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              backgroundColor: AppColors.lightAvatar200,
+              radius: 24,
+              child: Text(
+                initials,
+                style: const TextStyle(
+                  color: AppColors.lightAvatar100,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 16),
-          GestureDetector(
-            onTap: () {
-              context.goNamed(
-                RouteName.customersDetails.name,
-                extra: {'name': name, 'phone': phone},
-              );
-            },
-            child: Column(
+            const SizedBox(width: 16),
+
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -161,8 +167,8 @@ class CustomerInfo extends StatelessWidget {
                 Text(phone, style: const TextStyle(fontSize: 14)),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

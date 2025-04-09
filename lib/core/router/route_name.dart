@@ -5,7 +5,7 @@ enum RouteName {
   sales(path: '/sales', name: 'sales'),
   customers(path: '/customers', name: 'customers'),
   createCustomer(path: '/create-customer', name: 'createCustomer'),
-  customersDetails(path: '/customer_details', name: 'customersDetails'),
+  customersDetails(path: '/customer-details', name: 'customersDetails'),
   stok(path: '/stok', name: 'stok');
 
   final String path;
