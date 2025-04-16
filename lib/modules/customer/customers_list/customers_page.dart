@@ -31,7 +31,7 @@ class _CustomersPageState extends State<CustomersPage> with MessageMixin {
     return BlocListener<CustomerListCubit, CustomerListState>(
       listener: (context, state) {
         if (state is CustomListError) {
-          showError(context, 'Erro ao carregar clientes');
+          showError(context, 'Nenhum Cliente Cadastrado');
         }
       },
       child: Scaffold(
@@ -77,7 +77,9 @@ class _CustomersPageState extends State<CustomersPage> with MessageMixin {
                       state is CustomerListSuccess ? state.customers : null;
 
                   if (customers == null) {
-                    return const Center(child: Text('Erro ao buscar clientes'));
+                    return const Center(
+                      child: Text('Nenhum cliente encontrado'),
+                    );
                   }
 
                   return Visibility(
@@ -93,6 +95,7 @@ class _CustomersPageState extends State<CustomersPage> with MessageMixin {
                           return _CustomerCard(
                             name: customers[index].name,
                             phone: customers[index].phone,
+                            id: customers[index].id,
                           );
                         },
                         separatorBuilder:
@@ -111,9 +114,14 @@ class _CustomersPageState extends State<CustomersPage> with MessageMixin {
 }
 
 class _CustomerCard extends StatelessWidget {
-  const _CustomerCard({required this.name, required this.phone});
+  const _CustomerCard({
+    required this.name,
+    required this.phone,
+    required this.id,
+  });
 
   final String name;
+  final String id;
   final String phone;
 
   String get initials {
@@ -127,7 +135,7 @@ class _CustomerCard extends StatelessWidget {
         onTap: () {
           context.goNamed(
             RouteName.customersDetails.name,
-            extra: {'name': name, 'phone': phone},
+            pathParameters: {'id': id},
           );
         },
         borderRadius: BorderRadius.circular(30),

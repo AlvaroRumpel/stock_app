@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../modules/customer/customer_create/cubit/customer_create_cubit.dart';
 import '../../modules/customer/customer_create/customer_create_page.dart';
+import '../../modules/customer/customer_details/bloc/customer_details_cubit.dart';
 import '../../modules/customer/customer_details/customer_details.dart';
 import '../../modules/customer/customers_list/cubit/customer_list_cubit.dart';
 import '../../modules/customer/customers_list/customers_page.dart';
@@ -102,10 +103,27 @@ class AppRouter {
                             ),
                       ),
                       GoRoute(
-                        path: RouteName.customersDetails.path,
+                        path: ':id',
                         name: RouteName.customersDetails.name,
                         parentNavigatorKey: _rootNavigatorKey,
-                        builder: (context, state) => const CustomerDetails(),
+                        builder: (context, state) {
+                          final id = state.pathParameters['id']!;
+
+                          return RepositoryProvider(
+                            create:
+                                (context) => CustomerRepository(
+                                  remote: RemoteDataServiceImpl.instance,
+                                ),
+                            child: BlocProvider(
+                              create:
+                                  (context) => CustomerDetailCubit(
+                                    customerRepository:
+                                        context.read<CustomerRepository>(),
+                                  ),
+                              child: CustomerDetailsPage(customerId: id),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

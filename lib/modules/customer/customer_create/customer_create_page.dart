@@ -123,6 +123,7 @@ class _CustomerCreatePageState extends State<CustomerCreatePage>
                             }
                             return Autocomplete<City>(
                               onSelected: (option) => _cubit.changeCity(option),
+
                               optionsBuilder: (textEditingValue) {
                                 return state.where(
                                   (e) => e.cityName.clean().contains(
@@ -130,6 +131,8 @@ class _CustomerCreatePageState extends State<CustomerCreatePage>
                                   ),
                                 );
                               },
+                              optionsViewOpenDirection:
+                                  OptionsViewOpenDirection.up,
                               displayStringForOption:
                                   (option) => option.cityName,
 

@@ -39,6 +39,52 @@ class CustomerRepository {
     }
   }
 
+  Future<void> updateCustomer(Customer customer) async {
+    try {
+      await _remote.updateData(
+        table: Customer.tableName,
+        data: customer.toMap(),
+        column: 'id',
+        value: customer.id,
+      );
+    } catch (e, s) {
+      throw RemoteDataException(
+        message: 'Failed to update customer with id ${customer.id}',
+        error: e,
+        stackTrace: s,
+      );
+    }
+  }
+
+  Future<void> deleteCustomerById(String id) async {
+    try {
+      await _remote.deleteDataById(Customer.tableName, id);
+    } catch (e, s) {
+      throw RemoteDataException(
+        message: 'Failed to delete customer with id $id',
+        error: e,
+        stackTrace: s,
+      );
+    }
+  }
+
+  Future<Customer> getCustomerById(String id) async {
+    try {
+      final response = await _remote.fetchData(
+        Customer.tableName,
+        filters: {'id': id},
+      );
+
+      if (response.isEmpty) {
+        throw FailedToFetch();
+      }
+
+      return Customer.fromMap(response.first);
+    } catch (e, s) {
+      throw FailedToFetch(error: e, stackTrace: s);
+    }
+  }
+
   Future<List<City>> getCities() async {
     try {
       final response = await _remote.fetchData(
