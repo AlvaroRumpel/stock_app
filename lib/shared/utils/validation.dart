@@ -71,6 +71,23 @@ class Password extends Validation {
   }
 }
 
+class Phone extends Validation {
+  Phone({super.message = 'Número de telefone inválido'});
+
+  @override
+  String? validate(String? value) {
+    if (value == null || value.isEmpty) return null;
+
+    final phoneRegex = RegExp(r'^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$');
+
+    if (!phoneRegex.hasMatch(value)) {
+      return message;
+    }
+
+    return null;
+  }
+}
+
 class Custom extends Validation {
   Custom({required this.validation}) : super(message: '');
 

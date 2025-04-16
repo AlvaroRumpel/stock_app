@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_theme.dart';
-import '../../../core/router/app_router.dart';
+import '../../../shared/entities/city.dart';
+import '../../../shared/utils/formatters.dart';
 import '../../../shared/utils/message_mixin.dart';
+import '../../../shared/utils/string_extensions.dart';
 import '../../../shared/utils/validation.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/custom_textfield.dart';
@@ -23,7 +25,6 @@ class _CustomerCreatePageState extends State<CustomerCreatePage>
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
-  final _cityController = TextEditingController();
   final _observationController = TextEditingController();
 
   late final CustomerCreateCubit _cubit;
@@ -39,7 +40,6 @@ class _CustomerCreatePageState extends State<CustomerCreatePage>
     _nameController.dispose();
     _phoneController.dispose();
     _addressController.dispose();
-    _cityController.dispose();
     _observationController.dispose();
     super.dispose();
   }
@@ -90,54 +90,81 @@ class _CustomerCreatePageState extends State<CustomerCreatePage>
                           controller: _nameController,
                           hintText: 'Nome',
                           labelText: 'Nome',
+                          keyboardType: TextInputType.name,
                           validators: [Required()],
                         ),
                         CustomTextField(
                           controller: _phoneController,
                           hintText: 'Celular',
                           labelText: 'Celular',
-                          validators: [Required()],
+                          keyboardType: TextInputType.phone,
+                          validators: [Required(), Phone()],
+                          inputFormatters: [PhoneFormatter()],
                         ),
                         CustomTextField(
                           controller: _addressController,
                           hintText: 'Endereço',
                           labelText: 'Endereço',
+                          keyboardType: TextInputType.streetAddress,
                         ),
-                        CustomTextField(
-                          controller: _cityController,
-                          hintText: 'Cidade',
-                          labelText: 'Cidade',
+                        BlocSelector<
+                          CustomerCreateCubit,
+                          CustomerCreateState,
+                          List<City>
+                        >(
+                          selector: (state) {
+                            return state is CustomerCreateData
+                                ? state.cities
+                                : [];
+                          },
+                          builder: (context, state) {
+                            if (state.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
+                            return Autocomplete<City>(
+                              onSelected: (option) => _cubit.changeCity(option),
+                              optionsBuilder: (textEditingValue) {
+                                return state.where(
+                                  (e) => e.cityName.clean().contains(
+                                    textEditingValue.text.clean(),
+                                  ),
+                                );
+                              },
+                              displayStringForOption:
+                                  (option) => option.cityName,
+
+                              initialValue:
+                                  _cubit.state is CustomerCreateData
+                                      ? TextEditingValue(
+                                        text:
+                                            (_cubit.state as CustomerCreateData)
+                                                .selectedCity
+                                                .cityName,
+                                      )
+                                      : const TextEditingValue(),
+                              fieldViewBuilder:
+                                  (
+                                    context,
+                                    textEditingController,
+                                    focusNode,
+                                    onFieldSubmitted,
+                                  ) => CustomTextField(
+                                    focusNode: focusNode,
+                                    controller: textEditingController,
+                                    hintText: 'Cidade',
+                                    labelText: 'Cidade',
+                                    keyboardType: TextInputType.streetAddress,
+                                    onFieldSubmitted: onFieldSubmitted,
+                                  ),
+                            );
+                          },
                         ),
                         CustomTextField(
                           controller: _observationController,
-                          hintText: 'Observaçào',
+                          hintText: 'Observação',
                           labelText: 'Observação',
                           maxLines: 4,
-                        ),
-                      ],
-                    ),
-                    Column(
-                      spacing: 16,
-                      children: [
-                        CustomButton(
-                          onPressed: () async {
-                            if (_formKey.currentState?.validate() ?? false) {
-                              await _cubit.createCustomer(
-                                name: _nameController.text,
-                                phone: _phoneController.text,
-                                address: _addressController.text,
-                                cityId: _cityController.text,
-                                observation: _observationController.text,
-                              );
-                            }
-                          },
-                          child: const Text('Salvar'),
-                        ),
-                        CustomButton.outlined(
-                          onPressed: () {
-                            context.goNamed(RouteName.customers.name);
-                          },
-                          child: const Text('Cancelar'),
+                          keyboardType: TextInputType.multiline,
                         ),
                       ],
                     ),
@@ -146,6 +173,32 @@ class _CustomerCreatePageState extends State<CustomerCreatePage>
               ),
             );
           },
+        ),
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+          child: Column(
+            spacing: 16,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomButton(
+                onPressed: () async {
+                  if (_formKey.currentState?.validate() ?? false) {
+                    await _cubit.createCustomer(
+                      name: _nameController.text,
+                      phone: _phoneController.text,
+                      address: _addressController.text,
+                      observation: _observationController.text,
+                    );
+                  }
+                },
+                child: const Text('Salvar'),
+              ),
+              CustomButton.outlined(
+                onPressed: context.pop,
+                child: const Text('Cancelar'),
+              ),
+            ],
+          ),
         ),
       ),
     );

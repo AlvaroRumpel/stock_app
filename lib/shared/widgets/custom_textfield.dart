@@ -14,6 +14,8 @@ class CustomTextField extends StatelessWidget {
     this.inputFormatters,
     this.keyboardType,
     this.maxLines,
+    this.onFieldSubmitted,
+    this.focusNode,
   });
 
   final TextEditingController controller;
@@ -24,10 +26,13 @@ class CustomTextField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final TextInputType? keyboardType;
   final int? maxLines;
+  final VoidCallback? onFieldSubmitted;
+  final FocusNode? focusNode;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      focusNode: focusNode,
       onTapOutside: (_) => FocusScope.of(context).unfocus(),
       controller: controller,
       keyboardType: keyboardType,
@@ -40,6 +45,9 @@ class CustomTextField extends StatelessWidget {
       validator: validators?.validate,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       inputFormatters: inputFormatters,
+      onFieldSubmitted: (String value) {
+        onFieldSubmitted?.call();
+      },
     );
   }
 }

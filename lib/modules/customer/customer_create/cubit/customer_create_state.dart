@@ -9,6 +9,20 @@ sealed class CustomerCreateState extends Equatable {
 
 final class CustomerCreateInitial extends CustomerCreateState {}
 
+final class CustomerCreateData extends CustomerCreateState {
+  final List<City> cities;
+  final City selectedCity;
+
+  const CustomerCreateData({required this.cities, required this.selectedCity});
+
+  CustomerCreateData copyWith({List<City>? cities, City? selectedCity}) {
+    return CustomerCreateData(
+      cities: cities ?? this.cities,
+      selectedCity: selectedCity ?? this.selectedCity,
+    );
+  }
+}
+
 final class CustomerCreateSuccessCreate extends CustomerCreateState {}
 
 final class CustomerCreateLoading extends CustomerCreateState {}

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import '../utils/string_extensions.dart';
+
 class Customer {
   final String id;
   final String name;
@@ -39,7 +41,7 @@ class Customer {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'name': name,
-      'phone': phone,
+      'phone': phone.clean().split(' ').join(''),
       'address': address,
       'observation': observation,
       'city_id': cityId,

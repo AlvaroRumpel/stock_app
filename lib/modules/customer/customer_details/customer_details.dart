@@ -8,28 +8,28 @@ class CustomerDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> historicoCompras = [
-      {
-        'data': '23 Fev',
-        'descricao': '2 X 30L – 1 X 50L | 1 X chopeira',
-        'preco': 'R\$320,00',
-      },
-      {
-        'data': '23 Fev',
-        'descricao': '2 X 30L – 1 X 50L | 1 X chopeira',
-        'preco': 'R\$320,00',
-      },
-      {
-        'data': '23 Fev',
-        'descricao': '2 X 30L – 1 X 50L | 1 X chopeira',
-        'preco': 'R\$320,00',
-      },
-      {
-        'data': '23 Fev',
-        'descricao': '2 X 30L – 1 X 50L | 1 X chopeira',
-        'preco': 'R\$320,00',
-      },
-    ];
+    // final List<Map<String, String>> historicoCompras = [
+    //   {
+    //     'data': '23 Fev',
+    //     'descricao': '2 X 30L – 1 X 50L | 1 X chopeira',
+    //     'preco': 'R\$320,00',
+    //   },
+    //   {
+    //     'data': '23 Fev',
+    //     'descricao': '2 X 30L – 1 X 50L | 1 X chopeira',
+    //     'preco': 'R\$320,00',
+    //   },
+    //   {
+    //     'data': '23 Fev',
+    //     'descricao': '2 X 30L – 1 X 50L | 1 X chopeira',
+    //     'preco': 'R\$320,00',
+    //   },
+    //   {
+    //     'data': '23 Fev',
+    //     'descricao': '2 X 30L – 1 X 50L | 1 X chopeira',
+    //     'preco': 'R\$320,00',
+    //   },
+    // ];
 
     return Scaffold(
       appBar: AppBar(title: const Text('Detalhes')),
@@ -62,63 +62,63 @@ class CustomerDetails extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            Container(
-              width: context.width,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.darkBg200,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Históricos de compras',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: historicoCompras.length,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      final purchase = historicoCompras[index];
+            // Container(
+            //   width: context.width,
+            //   padding: const EdgeInsets.all(12),
+            //   decoration: BoxDecoration(
+            //     color: AppColors.darkBg200,
+            //     borderRadius: BorderRadius.circular(10),
+            //   ),
+            //   child: Column(
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     children: [
+            //       const Text(
+            //         'Históricos de compras',
+            //         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            //       ),
+            //       const SizedBox(height: 10),
+            //       ListView.separated(
+            //         shrinkWrap: true,
+            //         itemCount: historicoCompras.length,
+            //         physics: const NeverScrollableScrollPhysics(),
+            //         itemBuilder: (context, index) {
+            //           final purchase = historicoCompras[index];
 
-                      return Card(
-                        color: AppColors.darkBg100,
-                        margin: EdgeInsets.zero,
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: AppColors.lightPrimary200,
-                            child: Text(
-                              purchase['data']!.split(' ')[0],
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          title: Text(
-                            purchase['descricao']!,
-                            style: const TextStyle(
-                              color: AppColors.darkText100,
-                            ),
-                          ),
-                          subtitle: Text(
-                            purchase['preco']!,
-                            style: const TextStyle(
-                              color: AppColors.darkText100,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                    separatorBuilder:
-                        (context, index) => const SizedBox(height: 8),
-                  ),
-                ],
-              ),
-            ),
+            //           return Card(
+            //             color: AppColors.darkBg100,
+            //             margin: EdgeInsets.zero,
+            //             child: ListTile(
+            //               leading: CircleAvatar(
+            //                 backgroundColor: AppColors.lightPrimary200,
+            //                 child: Text(
+            //                   purchase['data']!.split(' ')[0],
+            //                   style: const TextStyle(
+            //                     color: Colors.black,
+            //                     fontWeight: FontWeight.bold,
+            //                   ),
+            //                 ),
+            //               ),
+            //               title: Text(
+            //                 purchase['descricao']!,
+            //                 style: const TextStyle(
+            //                   color: AppColors.darkText100,
+            //                 ),
+            //               ),
+            //               subtitle: Text(
+            //                 purchase['preco']!,
+            //                 style: const TextStyle(
+            //                   color: AppColors.darkText100,
+            //                 ),
+            //               ),
+            //             ),
+            //           );
+            //         },
+            //         separatorBuilder:
+            //             (context, index) => const SizedBox(height: 8),
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),

@@ -6,6 +6,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../core/router/app_router.dart';
 import '../../../shared/utils/context_extensions.dart';
 import '../../../shared/utils/message_mixin.dart';
+import '../../../shared/utils/string_extensions.dart';
 import 'cubit/customer_list_cubit.dart';
 
 class CustomersPage extends StatefulWidget {
@@ -121,53 +122,63 @@ class _CustomerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        context.goNamed(
-          RouteName.customersDetails.name,
-          extra: {'name': name, 'phone': phone},
-        );
-      },
-      borderRadius: BorderRadius.circular(30),
-      child: Ink(
-        width: context.width,
-        padding: const EdgeInsets.only(top: 8, right: 24, bottom: 8, left: 16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          color: AppColors.darkBg200,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              backgroundColor: AppColors.lightAvatar200,
-              radius: 24,
-              child: Text(
-                initials,
-                style: const TextStyle(
-                  color: AppColors.lightAvatar100,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
+    return Material(
+      child: InkWell(
+        onTap: () {
+          context.goNamed(
+            RouteName.customersDetails.name,
+            extra: {'name': name, 'phone': phone},
+          );
+        },
+        borderRadius: BorderRadius.circular(30),
+        child: Ink(
+          width: context.width,
+          padding: const EdgeInsets.only(
+            top: 8,
+            right: 24,
+            bottom: 8,
+            left: 16,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            color: AppColors.darkBg200,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                backgroundColor: AppColors.lightAvatar200,
+                radius: 24,
+                child: Text(
+                  initials,
                   style: const TextStyle(
-                    fontSize: 16,
+                    color: AppColors.lightAvatar100,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(phone, style: const TextStyle(fontSize: 14)),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(width: 16),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    phone.formatAsPhoneNumber(),
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -8,6 +8,7 @@ class CustomButton extends StatelessWidget {
   final Color? backgroundColor;
   final Color? _iconColor;
   final IconData? _icon;
+  final bool enabled;
 
   const CustomButton({
     super.key,
@@ -16,6 +17,7 @@ class CustomButton extends StatelessWidget {
     this.backgroundColor,
     Color? iconColor,
     IconData? icon,
+    this.enabled = true,
   }) : _type = _CustomButtonType.filled,
        _icon = icon,
        _iconColor = iconColor;
@@ -27,6 +29,7 @@ class CustomButton extends StatelessWidget {
     this.backgroundColor,
     Color? iconColor,
     IconData? icon,
+    this.enabled = true,
   }) : _type = _CustomButtonType.outlined,
        _icon = icon,
        _iconColor = iconColor;
