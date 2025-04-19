@@ -17,4 +17,6 @@ final class CustomerListSuccess extends CustomerListState {
   const CustomerListSuccess({required this.customers});
 }
 
-final class CustomListError extends CustomerListState {}
+final class CustomerListError extends CustomerListState {}
+
+final class CustomerListEmpty extends CustomerListState {}

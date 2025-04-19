@@ -47,6 +47,7 @@ class AppTheme {
         return const TextStyle(color: AppColors.darkPrimary300);
       }),
     ),
+    appBarTheme: const AppBarTheme(centerTitle: true),
     dialogTheme: DialogTheme(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),

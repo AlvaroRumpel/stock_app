@@ -21,3 +21,5 @@ final class CustomerDetailSuccess extends CustomerDetailState {
 }
 
 final class CustomerDetailError extends CustomerDetailState {}
+
+final class CustomerDetailDeleted extends CustomerDetailState {}

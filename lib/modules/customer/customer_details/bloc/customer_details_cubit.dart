@@ -30,6 +30,8 @@ class CustomerDetailCubit extends Cubit<CustomerDetailState> {
       emit(CustomerDetailLoading());
 
       await _repo.deleteCustomerById(id);
+
+      emit(CustomerDetailDeleted());
     } catch (_) {
       emit(CustomerDetailError());
     }

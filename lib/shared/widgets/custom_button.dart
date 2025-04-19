@@ -9,6 +9,8 @@ class CustomButton extends StatelessWidget {
   final Color? _iconColor;
   final IconData? _icon;
   final bool enabled;
+  final bool expanded;
+  final Color? foregroundColor;
 
   const CustomButton({
     super.key,
@@ -18,6 +20,8 @@ class CustomButton extends StatelessWidget {
     Color? iconColor,
     IconData? icon,
     this.enabled = true,
+    this.expanded = true,
+    this.foregroundColor,
   }) : _type = _CustomButtonType.filled,
        _icon = icon,
        _iconColor = iconColor;
@@ -30,6 +34,8 @@ class CustomButton extends StatelessWidget {
     Color? iconColor,
     IconData? icon,
     this.enabled = true,
+    this.expanded = true,
+    this.foregroundColor,
   }) : _type = _CustomButtonType.outlined,
        _icon = icon,
        _iconColor = iconColor;
@@ -42,6 +48,7 @@ class CustomButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor,
         iconColor: _iconColor,
+        foregroundColor: foregroundColor,
       ),
       label: child,
       icon: _icon != null ? Icon(_icon) : null,
@@ -51,6 +58,11 @@ class CustomButton extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         backgroundColor: backgroundColor,
         iconColor: _iconColor,
+        foregroundColor: foregroundColor,
+        side:
+            foregroundColor != null
+                ? BorderSide(color: foregroundColor!)
+                : null,
       ),
       label: child,
       icon: _icon != null ? Icon(_icon) : null,
@@ -59,7 +71,7 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(width: context.width, child: _button);
+    return SizedBox(width: expanded ? context.width : null, child: _button);
   }
 }
 

@@ -86,24 +86,27 @@ class AppRouter {
                         path: RouteName.createCustomer.path,
                         name: RouteName.createCustomer.name,
                         parentNavigatorKey: _rootNavigatorKey,
-                        builder:
-                            (context, state) => RepositoryProvider(
+                        builder: (context, state) {
+                          final customerId = state.uri.queryParameters['id'];
+
+                          return RepositoryProvider(
+                            create:
+                                (context) => CustomerRepository(
+                                  remote: RemoteDataServiceImpl.instance,
+                                ),
+                            child: BlocProvider(
                               create:
-                                  (context) => CustomerRepository(
-                                    remote: RemoteDataServiceImpl.instance,
+                                  (context) => CustomerCreateCubit(
+                                    customerRepository:
+                                        context.read<CustomerRepository>(),
                                   ),
-                              child: BlocProvider(
-                                create:
-                                    (context) => CustomerCreateCubit(
-                                      customerRepository:
-                                          context.read<CustomerRepository>(),
-                                    ),
-                                child: const CustomerCreatePage(),
-                              ),
+                              child: CustomerCreatePage(customerId: customerId),
                             ),
+                          );
+                        },
                       ),
                       GoRoute(
-                        path: ':id',
+                        path: '${RouteName.customersDetails.path}/:id',
                         name: RouteName.customersDetails.name,
                         parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) {

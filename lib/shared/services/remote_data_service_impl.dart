@@ -162,6 +162,7 @@ class RemoteDataServiceImpl implements RemoteDataService {
   Future<List<Map<String, dynamic>>> fetchData(
     String table, {
     Map<String, dynamic>? filters,
+    bool getDeleted = false,
   }) async {
     try {
       var query = _client.from(table).select();
@@ -173,6 +174,11 @@ class RemoteDataServiceImpl implements RemoteDataService {
       }
 
       final response = await query;
+
+      if (response.isNotEmpty && !getDeleted) {
+        response.removeWhere((e) => e['deleted_at'] != null);
+      }
+
       return response;
     } catch (e, s) {
       throw RemoteDataException(
@@ -260,7 +266,11 @@ class RemoteDataServiceImpl implements RemoteDataService {
   Future<void> deleteDataById(String table, String id) async {
     try {
       final result =
-          await _client.from(table).delete().match({'id': id}).select();
+          await _client
+              .from(table)
+              .update({'deleted_at': DateTime.now().toIso8601String()})
+              .match({'id': id})
+              .select();
 
       if (kDebugMode) {
         print(result);

@@ -30,7 +30,7 @@ class CustomerRepository {
       final response = await _remote.fetchData(Customer.tableName);
 
       if (response.isEmpty) {
-        throw FailedToFetch();
+        throw EmptyFromFetch();
       }
 
       return response.map(Customer.fromMap).toList();

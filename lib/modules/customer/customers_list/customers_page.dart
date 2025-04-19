@@ -30,14 +30,14 @@ class _CustomersPageState extends State<CustomersPage> with MessageMixin {
   Widget build(BuildContext context) {
     return BlocListener<CustomerListCubit, CustomerListState>(
       listener: (context, state) {
-        if (state is CustomListError) {
-          showError(context, 'Nenhum Cliente Cadastrado');
+        if (state is CustomerListError) {
+          showError(context, 'Erro na busca');
         }
       },
       child: Scaffold(
         appBar: AppBar(title: const Text('Clientes')),
         body: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(16),
           child: Column(
             spacing: 16,
             children: [
@@ -132,11 +132,15 @@ class _CustomerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       child: InkWell(
-        onTap: () {
-          context.goNamed(
+        onTap: () async {
+          await context.pushNamed(
             RouteName.customersDetails.name,
             pathParameters: {'id': id},
           );
+
+          if (context.mounted) {
+            context.read<CustomerListCubit>().fetchAllCustomers();
+          }
         },
         borderRadius: BorderRadius.circular(30),
         child: Ink(

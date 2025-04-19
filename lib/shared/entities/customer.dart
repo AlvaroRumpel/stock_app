@@ -71,4 +71,28 @@ class Customer {
 
   factory Customer.fromJson(String source) =>
       Customer.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  Customer copyWith({
+    String? id,
+    String? name,
+    String? phone,
+    String? address,
+    String? observation,
+    String? cityId,
+    DateTime? createAt,
+    DateTime? updateAt,
+    DateTime? deletedAt,
+  }) {
+    return Customer(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      phone: phone ?? this.phone,
+      address: address ?? this.address,
+      observation: observation ?? this.observation,
+      cityId: cityId ?? this.cityId,
+      createAt: createAt ?? this.createAt,
+      updateAt: updateAt ?? this.updateAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
 }

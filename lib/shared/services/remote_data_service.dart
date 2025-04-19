@@ -44,6 +44,7 @@ abstract interface class RemoteDataService {
   Future<List<Map<String, dynamic>>> fetchData(
     String table, {
     Map<String, dynamic>? filters,
+    bool getDeleted = false,
   });
 
   /// Insert data into a specific table

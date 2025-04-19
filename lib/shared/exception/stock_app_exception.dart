@@ -27,3 +27,8 @@ class FailedToFetch extends StockAppException {
   FailedToFetch({String? message, super.error, super.stackTrace})
     : super(message: message ?? 'Erro ao buscar os dados');
 }
+
+class EmptyFromFetch extends StockAppException {
+  EmptyFromFetch({String? message, super.error, super.stackTrace})
+    : super(message: message ?? 'Erro ao buscar os dados');
+}

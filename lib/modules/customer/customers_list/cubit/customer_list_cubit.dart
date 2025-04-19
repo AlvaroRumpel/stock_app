@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../../shared/entities/customer.dart';
+import '../../../../shared/exception/exceptions.dart';
 import '../../../../shared/repositories/customer_repository.dart';
 
 part 'customer_list_state.dart';
@@ -21,7 +22,11 @@ class CustomerListCubit extends Cubit<CustomerListState> {
 
       emit(CustomerListSuccess(customers: customers));
     } catch (e) {
-      emit(CustomListError());
+      if (e is EmptyFromFetch) {
+        emit(CustomerListEmpty());
+        return;
+      }
+      emit(CustomerListError());
     }
   }
 }

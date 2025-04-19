@@ -30,3 +30,8 @@ extension PhoneNumberFormatter on String {
     return this;
   }
 }
+
+extension StringExtensions on String? {
+  bool get isNullOrEmpty => this == null || this!.isEmpty;
+  bool get isNotNullAndNotEmpty => this != null && this!.isNotEmpty;
+}

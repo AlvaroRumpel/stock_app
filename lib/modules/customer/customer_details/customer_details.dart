@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../shared/repositories/customer_repository.dart';
+import '../../../shared/utils/context_extensions.dart';
 import '../../../shared/utils/message_mixin.dart';
+import '../../../shared/utils/string_extensions.dart';
+import '../../../shared/widgets/custom_button.dart';
 import 'bloc/customer_details_cubit.dart';
 
 class CustomerDetailsPage extends StatefulWidget {
@@ -19,13 +22,10 @@ class CustomerDetailsPage extends StatefulWidget {
 class _CustomerDetailsPageState extends State<CustomerDetailsPage>
     with MessageMixin {
   late final CustomerDetailCubit _cubit;
-  bool _wasDeleted = false;
 
   @override
   void initState() {
-    _cubit = CustomerDetailCubit(
-      customerRepository: context.read<CustomerRepository>(),
-    );
+    _cubit = context.read<CustomerDetailCubit>();
     _cubit.fetchCustomer(widget.customerId);
     super.initState();
   }
@@ -38,150 +38,176 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage>
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CustomerDetailCubit, CustomerDetailState>(
-      bloc: _cubit,
-      listener: (context, state) {
-        if (state is CustomerDetailError) {
-          showError(context, 'Erro ao processar solicitação');
-        }
+    return Scaffold(
+      appBar: AppBar(title: const Text('Detalhes')),
+      body: BlocConsumer<CustomerDetailCubit, CustomerDetailState>(
+        listener: (context, state) {
+          if (state is CustomerDetailError) {
+            showError(context, 'Erro ao processar solicitação');
+          }
 
-        if (state is CustomerDetailInitial && _wasDeleted) {
-          showSuccess(context, 'Cliente deletado com sucesso');
-          context.pop(true);
-        }
-      },
-      builder: (context, state) {
-        return Scaffold(
-          appBar: AppBar(title: const Text('Detalhes do Cliente')),
-          body: Builder(
-            builder: (context) {
-              if (state is CustomerDetailLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
+          if (state is CustomerDetailDeleted) {
+            context.pop();
+            showSuccess(context, 'Cliente deletado com sucesso');
+          }
+        },
+        builder: (context, state) {
+          if (state is CustomerDetailLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-              if (state is CustomerDetailSuccess) {
-                final customer = state.customers;
+          if (state is CustomerDetailSuccess) {
+            final customer = state.customers;
 
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    spacing: 24,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: AppColors.darkBg200,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          spacing: 12,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                spacing: 24,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.darkBg200,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      spacing: 12,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    customer.name,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                            Expanded(
+                              child: Text(
+                                customer.name,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                Row(
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.edit,
-                                        size: 20,
-                                        color: AppColors.darkPrimary300,
-                                      ),
-                                      onPressed: () {},
+                              ),
+                            ),
+                            Material(
+                              color: AppColors.darkBg200,
+                              child: Row(
+                                spacing: 8,
+                                children: [
+                                  InkWell(
+                                    child: const Icon(
+                                      Icons.edit_outlined,
+                                      size: 24,
+                                      color: AppColors.darkPrimary300,
                                     ),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.delete,
-                                        size: 20,
-                                        color: AppColors.darkAccent100,
-                                      ),
-                                      onPressed: () async {
-                                        final confirm = await showDialog<bool>(
-                                          context: context,
-                                          builder:
-                                              (context) => AlertDialog(
-                                                title: const Text(
-                                                  'Confirmação',
-                                                ),
-                                                content: const Text(
-                                                  'Deseja realmente excluir este cliente?',
-                                                ),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed:
-                                                        () => Navigator.of(
-                                                          context,
-                                                        ).pop(false),
-                                                    child: const Text(
-                                                      'Cancelar',
-                                                    ),
-                                                  ),
-                                                  ElevatedButton(
-                                                    onPressed:
-                                                        () => Navigator.of(
-                                                          context,
-                                                        ).pop(true),
-                                                    child: const Text(
-                                                      'Excluir',
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                        );
+                                    onTap: () async {
+                                      await context.pushNamed(
+                                        RouteName.createCustomer.name,
+                                        queryParameters: {'id': customer.id},
+                                      );
 
-                                        if (confirm == true) {
-                                          await _cubit.deleteCustomer(
-                                            customer.id,
-                                          );
-                                          Navigator.of(context).pop(true);
-                                        }
-                                      },
+                                      _cubit.fetchCustomer(customer.id);
+                                    },
+                                  ),
+                                  InkWell(
+                                    child: const Icon(
+                                      Icons.delete_outlined,
+                                      size: 24,
+                                      color: AppColors.darkAccent100,
                                     ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const Text('Celular:'),
-                            Text(
-                              customer.phone,
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            const Text('Endereço:'),
-                            Text(
-                              customer.address ?? 'Sem endereço',
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            const Text('Observações:'),
-                            Text(
-                              customer.observation?.isNotEmpty == true
-                                  ? customer.observation!
-                                  : 'Sem observações',
-                              style: const TextStyle(fontSize: 14),
+                                    onTap: () async {
+                                      final confirm =
+                                          (await context.openBottomSheet<bool>(
+                                            _ConfirmDeleteBottomSheet(),
+                                          )) ??
+                                          false;
+
+                                      if (confirm) {
+                                        await _cubit.deleteCustomer(
+                                          customer.id,
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                        const Text('Celular:'),
+                        Text(
+                          customer.phone,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const Text('Endereço:'),
+                        Text(
+                          customer.address ?? 'Sem endereço',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const Text('Observações:'),
+                        Text(
+                          customer.observation.isNotNullAndNotEmpty
+                              ? customer.observation!
+                              : 'Sem observações',
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ],
+                    ),
                   ),
-                );
-              }
+                ],
+              ),
+            );
+          }
 
-              return const Center(child: Text('Cliente não encontrado'));
-            },
-          ),
-        );
-      },
+          return const Center(child: Text('Cliente não encontrado'));
+        },
+      ),
+    );
+  }
+}
+
+class _ConfirmDeleteBottomSheet extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      insetPadding: const EdgeInsets.all(24),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Atenção', style: Theme.of(context).textTheme.headlineMedium),
+            const SizedBox(height: 24),
+            Text(
+              'Deseja remover este cliente da sua lista de contatos?',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            Text(
+              'Está ação não poderá ser desfeita',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 24),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 24,
+              children: [
+                CustomButton.outlined(
+                  onPressed: () => context.pop(false),
+                  expanded: false,
+                  child: const Text('Cancelar'),
+                ),
+                CustomButton.outlined(
+                  onPressed: () => context.pop(true),
+                  expanded: false,
+                  foregroundColor: AppColors.darkAccent100,
+                  child: const Text('Remover'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

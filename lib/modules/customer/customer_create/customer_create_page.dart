@@ -13,7 +13,8 @@ import '../../../shared/widgets/custom_textfield.dart';
 import 'cubit/customer_create_cubit.dart';
 
 class CustomerCreatePage extends StatefulWidget {
-  const CustomerCreatePage({super.key});
+  final String? customerId;
+  const CustomerCreatePage({super.key, this.customerId});
 
   @override
   State<CustomerCreatePage> createState() => _CustomerCreatePageState();
@@ -32,6 +33,14 @@ class _CustomerCreatePageState extends State<CustomerCreatePage>
   @override
   void initState() {
     _cubit = context.read<CustomerCreateCubit>();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _cubit.getCities();
+      if (widget.customerId.isNotNullAndNotEmpty) {
+        await _cubit.getCustomer(widget.customerId!);
+      }
+    });
+
     super.initState();
   }
 
@@ -57,6 +66,25 @@ class _CustomerCreatePageState extends State<CustomerCreatePage>
         if (state is CustomerCreateError) {
           showError(context, 'Erro ao cadastrar cliente');
           return;
+        }
+
+        if (state is CustomerCreateData && state.customer != null) {
+          _nameController.text =
+              _nameController.text.isEmpty
+                  ? state.customer!.name
+                  : _nameController.text;
+          _phoneController.text =
+              _phoneController.text.isEmpty
+                  ? state.customer!.phone
+                  : _phoneController.text;
+          _addressController.text =
+              _addressController.text.isEmpty
+                  ? state.customer?.address ?? ''
+                  : _addressController.text;
+          _observationController.text =
+              _observationController.text.isEmpty
+                  ? state.customer?.observation ?? ''
+                  : _observationController.text;
         }
       },
       child: Scaffold(
