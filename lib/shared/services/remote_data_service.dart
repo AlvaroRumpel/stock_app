@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-
 abstract interface class RemoteDataService {
   /// Check if user is logged in
   bool get isLogged;
@@ -33,9 +32,7 @@ abstract interface class RemoteDataService {
   Future<void> updateEmailUser({required String email});
 
   /// Sign in with phone number
-  Future<void> signInWithPhoneNumber({
-    required String phoneNumber,
-  });
+  Future<void> signInWithPhoneNumber({required String phoneNumber});
 
   /// Verify a phone OTP
   Future<AuthResponse> verifyPhoneOTP({
@@ -44,9 +41,10 @@ abstract interface class RemoteDataService {
   });
 
   /// Fetch data from a specific table with optional filtering
-  Future<List<Map<String, dynamic>>?> fetchData(
+  Future<List<Map<String, dynamic>>> fetchData(
     String table, {
     Map<String, dynamic>? filters,
+    bool getDeleted = false,
   });
 
   /// Insert data into a specific table
