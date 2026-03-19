@@ -187,7 +187,6 @@ class _ConfirmDeleteBottomSheet extends StatelessWidget {
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 24),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 24,

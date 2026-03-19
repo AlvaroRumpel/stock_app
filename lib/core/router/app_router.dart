@@ -10,8 +10,16 @@ import '../../modules/customer/customers_list/cubit/customer_list_cubit.dart';
 import '../../modules/customer/customers_list/customers_page.dart';
 import '../../modules/home/home_page.dart';
 import '../../modules/sales/sales_page.dart';
-import '../../modules/stok/stok_page.dart';
+import '../../modules/stok/barrel_create/barrel_create_page.dart';
+import '../../modules/stok/barrel_create/cubit/barrel_create_cubit.dart';
+import '../../modules/stok/barrel_detail/barrel_detail_page.dart';
+import '../../modules/stok/barrel_detail/cubit/barrel_detail_cubit.dart';
+import '../../modules/stok/dispenser_create/cubit/dispenser_create_cubit.dart';
+import '../../modules/stok/dispenser_create/dispenser_create_page.dart';
+import '../../modules/stok/stok_list/cubit/stok_cubit.dart';
+import '../../modules/stok/stok_list/stok_page.dart';
 import '../../shared/repositories/customer_repository.dart';
+import '../../shared/repositories/product_repository.dart';
 import '../../shared/services/remote_data_service_impl.dart';
 import '../../shared/widgets/scaffold_with_navigation_bar.dart';
 
@@ -57,7 +65,81 @@ class AppRouter {
                   GoRoute(
                     path: RouteName.stok.path,
                     name: RouteName.stok.name,
-                    builder: (context, state) => const StokPage(),
+                    builder:
+                        (context, state) => RepositoryProvider(
+                          create:
+                              (context) => ProductRepository(
+                                remote: RemoteDataServiceImpl.instance,
+                              ),
+                          child: BlocProvider(
+                            create:
+                                (context) => StokCubit(
+                                  repo: context.read<ProductRepository>(),
+                                ),
+                            child: const StokPage(),
+                          ),
+                        ),
+                    routes: [
+                      GoRoute(
+                        path: RouteName.createBarrel.path,
+                        name: RouteName.createBarrel.name,
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder:
+                            (context, state) => RepositoryProvider(
+                              create:
+                                  (context) => ProductRepository(
+                                    remote: RemoteDataServiceImpl.instance,
+                                  ),
+                              child: BlocProvider(
+                                create:
+                                    (context) => BarrelCreateCubit(
+                                      repo: context.read<ProductRepository>(),
+                                    ),
+                                child: const BarrelCreatePage(),
+                              ),
+                            ),
+                      ),
+                      GoRoute(
+                        path: RouteName.createDispenser.path,
+                        name: RouteName.createDispenser.name,
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder:
+                            (context, state) => RepositoryProvider(
+                              create:
+                                  (context) => ProductRepository(
+                                    remote: RemoteDataServiceImpl.instance,
+                                  ),
+                              child: BlocProvider(
+                                create:
+                                    (context) => DispenserCreateCubit(
+                                      repo: context.read<ProductRepository>(),
+                                    ),
+                                child: const DispenserCreatePage(),
+                              ),
+                            ),
+                      ),
+                      GoRoute(
+                        path: '${RouteName.detailBarrel.path}/:id',
+                        name: RouteName.detailBarrel.name,
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) {
+                          final id = state.pathParameters['id']!;
+                          return RepositoryProvider(
+                            create:
+                                (context) => ProductRepository(
+                                  remote: RemoteDataServiceImpl.instance,
+                                ),
+                            child: BlocProvider(
+                              create:
+                                  (context) => BarrelDetailCubit(
+                                    repo: context.read<ProductRepository>(),
+                                  ),
+                              child: BarrelDetailPage(productId: id),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),

@@ -6,7 +6,6 @@ part 'app_colors.dart';
 part 'app_text.dart';
 
 class AppTheme {
-  // ignore: unused_field
   static final _lightTheme = ThemeData(
     brightness: Brightness.light,
     primaryColor: AppColors.lightPrimary100,
@@ -48,7 +47,7 @@ class AppTheme {
       }),
     ),
     appBarTheme: const AppBarTheme(centerTitle: true),
-    dialogTheme: DialogTheme(
+    dialogTheme: DialogThemeData(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -81,6 +80,52 @@ class AppTheme {
         textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         foregroundColor: AppColors.darkPrimary300,
       ),
+    ),
+    tabBarTheme: TabBarThemeData(
+      labelColor: AppColors.darkText100,
+      unselectedLabelColor: AppColors.darkText200,
+      tabAlignment: TabAlignment.fill,
+      labelPadding: const EdgeInsets.all(8),
+      indicatorColor: AppColors.darkBg200,
+      indicator: BoxDecoration(
+        color: AppColors.darkBg200,
+        borderRadius: BorderRadius.circular(100),
+      ),
+      indicatorSize: TabBarIndicatorSize.tab,
+      dividerColor: Colors.transparent,
+      labelStyle: _darkTheme.textTheme.titleLarge,
+      unselectedLabelStyle: _darkTheme.textTheme.titleLarge,
+    ),
+    radioTheme: RadioThemeData(
+      fillColor: WidgetStateColor.resolveWith((states) {
+        return AppColors.darkAvatar100;
+      }),
+      visualDensity: VisualDensity.compact,
+    ),
+    datePickerTheme: DatePickerThemeData(
+      confirmButtonStyle: TextButton.styleFrom(
+        foregroundColor: AppColors.darkAvatar100,
+      ),
+      cancelButtonStyle: TextButton.styleFrom(
+        foregroundColor: AppColors.darkText200,
+      ),
+      todayForegroundColor: WidgetStateProperty.all(Colors.white),
+      dayBackgroundColor: WidgetStateProperty.resolveWith<Color?>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
+          return AppColors.darkAvatar100;
+        }
+        return null;
+      }),
+      dayForegroundColor: WidgetStateProperty.resolveWith<Color?>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
+          return Colors.black;
+        }
+        return null;
+      }),
     ),
   );
 }

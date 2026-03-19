@@ -24,9 +24,14 @@ extension DialogExtension on BuildContext {
     bool barrierDismissible = true,
   }) async {
     return showModalBottomSheet(
+      showDragHandle: true,
       context: this,
       builder: (context) => child,
       isDismissible: barrierDismissible,
     );
   }
+}
+
+extension ThemeExtension on BuildContext {
+  TextTheme get textStyle => Theme.of(this).textTheme;
 }

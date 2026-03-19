@@ -16,8 +16,13 @@ class CustomTextField extends StatelessWidget {
     this.maxLines,
     this.onFieldSubmitted,
     this.focusNode,
+    this.onTap,
+    this.suffixIcon,
+    this.suffix,
+    this.prefix,
   });
 
+  final VoidCallback? onTap;
   final TextEditingController controller;
   final String labelText;
   final String hintText;
@@ -28,6 +33,15 @@ class CustomTextField extends StatelessWidget {
   final int? maxLines;
   final VoidCallback? onFieldSubmitted;
   final FocusNode? focusNode;
+  final IconData? suffixIcon;
+  final Widget? suffix;
+  final Widget? prefix;
+
+  Widget? get _suffix {
+    if (suffixIcon != null) return Icon(suffixIcon);
+    if (suffix != null) return suffix!;
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,11 +51,15 @@ class CustomTextField extends StatelessWidget {
       controller: controller,
       keyboardType: keyboardType,
       maxLines: maxLines,
+      onTap: onTap,
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+        suffixIcon: _suffix,
+        prefix: prefix,
       ),
+      readOnly: onTap != null,
       validator: validators?.validate,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       inputFormatters: inputFormatters,

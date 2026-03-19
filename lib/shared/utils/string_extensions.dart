@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 extension CleanString on String {
   String clean() {
     final withNoAccents = _removeDiacritics(this);
@@ -34,4 +36,31 @@ extension PhoneNumberFormatter on String {
 extension StringExtensions on String? {
   bool get isNullOrEmpty => this == null || this!.isEmpty;
   bool get isNotNullAndNotEmpty => this != null && this!.isNotEmpty;
+}
+
+extension DateExtension on DateTime? {
+  String get toStringFixed {
+    if (this == null) {
+      return '';
+    }
+
+    final format = DateFormat('dd/MM/yyyy');
+    return format.format(this!);
+  }
+}
+
+extension CurrencyStringExtension on String {
+  String get toCurrencyFixed {
+    return replaceAll('.', '').replaceAll(',', '.');
+  }
+}
+
+extension DoubleExtension on double? {
+  String get toCurrencyFixed {
+    if (this == null) {
+      return '0,00';
+    }
+    final format = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+    return format.format(this!);
+  }
 }

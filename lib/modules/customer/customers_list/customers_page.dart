@@ -7,6 +7,7 @@ import '../../../core/router/app_router.dart';
 import '../../../shared/utils/context_extensions.dart';
 import '../../../shared/utils/message_mixin.dart';
 import '../../../shared/utils/string_extensions.dart';
+import '../../../shared/widgets/custom_button.dart';
 import 'cubit/customer_list_cubit.dart';
 
 class CustomersPage extends StatefulWidget {
@@ -43,7 +44,8 @@ class _CustomersPageState extends State<CustomersPage> with MessageMixin {
             children: [
               Align(
                 alignment: Alignment.centerRight,
-                child: OutlinedButton(
+                child: CustomButton.outlined(
+                  expanded: false,
                   onPressed: () async {
                     final result =
                         (await context.pushNamed<bool>(
@@ -55,16 +57,8 @@ class _CustomersPageState extends State<CustomersPage> with MessageMixin {
                       _cubit.fetchAllCustomers();
                     }
                   },
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
-                  ),
-                  child: const Text(
-                    'Novo cliente',
-                    style: TextStyle(fontSize: 16),
-                  ),
+
+                  child: const Text('Novo cliente'),
                 ),
               ),
               BlocBuilder<CustomerListCubit, CustomerListState>(

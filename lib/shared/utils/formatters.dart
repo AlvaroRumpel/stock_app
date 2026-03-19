@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 class PhoneFormatter extends TextInputFormatter {
   @override
@@ -49,6 +50,36 @@ class PhoneFormatter extends TextInputFormatter {
       selection: TextSelection.collapsed(
         offset: cursorPosition.clamp(0, formattedText.length),
       ),
+    );
+  }
+}
+
+class RealCurrencyInputFormatterNoSymbol extends TextInputFormatter {
+  final _numberFormatter = NumberFormat.currency(
+    locale: 'pt_BR',
+    symbol: '',
+    decimalDigits: 2,
+  );
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (newValue.text.isEmpty) {
+      return newValue.copyWith(text: '');
+    }
+
+    String newText = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
+    if (newText.isEmpty) newText = '0';
+
+    double value = double.parse(newText) / 100;
+
+    String newFormatted = _numberFormatter.format(value).trim();
+
+    return TextEditingValue(
+      text: newFormatted,
+      selection: TextSelection.collapsed(offset: newFormatted.length),
     );
   }
 }
