@@ -20,6 +20,14 @@ final class BarrelDetailLoaded extends BarrelDetailState {
   List<Object> get props => [barrel];
 }
 
-final class BarrelDetailError extends BarrelDetailState {}
+final class BarrelDetailError extends BarrelDetailState {
+  final String? message;
+  const BarrelDetailError({this.message});
+
+  @override
+  List<Object> get props => [message ?? ''];
+}
 
 final class BarrelDetailDeleted extends BarrelDetailState {}
+
+final class BarrelDetailUpdated extends BarrelDetailState {}

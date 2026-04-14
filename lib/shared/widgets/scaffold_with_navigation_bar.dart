@@ -47,10 +47,10 @@ class ScaffoldWithNavigationBar extends StatelessWidget {
     );
   }
 
-  void _onTap(index) {
-    navigationShell.goBranch(
-      index,
-      initialLocation: index == navigationShell.currentIndex,
-    );
+  void _onTap(int index) {
+    // For the stock tab (index 2), always reload from initial location so
+    // the product list refreshes after sales or edits.
+    final forceInitial = index == 2 || index == navigationShell.currentIndex;
+    navigationShell.goBranch(index, initialLocation: forceInitial);
   }
 }

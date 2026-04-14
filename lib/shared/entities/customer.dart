@@ -8,7 +8,6 @@ class Customer {
   final String phone;
   final String? address;
   final String? observation;
-  final String? cityId;
   final DateTime createAt;
   final DateTime? updateAt;
   final DateTime? deletedAt;
@@ -21,7 +20,6 @@ class Customer {
     required this.phone,
     this.address,
     this.observation,
-    this.cityId,
     required this.createAt,
     this.updateAt,
     this.deletedAt,
@@ -32,7 +30,6 @@ class Customer {
     required this.phone,
     this.address,
     this.observation,
-    this.cityId,
     this.updateAt,
     this.deletedAt,
   }) : id = '',
@@ -44,8 +41,7 @@ class Customer {
       'phone': phone.clean().split(' ').join(''),
       'address': address,
       'observation': observation,
-      'city_id': cityId,
-      'update_at': updateAt?.toIso8601String(),
+      'updated_at': updateAt?.toIso8601String(),
       'deleted_at': deletedAt?.toIso8601String(),
     };
   }
@@ -55,10 +51,9 @@ class Customer {
       id: map['id'] as String,
       name: map['name'] as String,
       phone: map['phone'] as String,
-      address: map['address'] != null ? map['address'] as String : null,
+      address: map['address'] as String?,
       observation:
           map['observation'] != null ? map['observation'] as String : null,
-      cityId: map['city_id'] != null ? map['city_id'] as String : null,
       createAt: DateTime.parse(map['created_at']),
       updateAt:
           map['updated_at'] != null ? DateTime.parse(map['updated_at']) : null,
@@ -78,7 +73,6 @@ class Customer {
     String? phone,
     String? address,
     String? observation,
-    String? cityId,
     DateTime? createAt,
     DateTime? updateAt,
     DateTime? deletedAt,
@@ -89,7 +83,6 @@ class Customer {
       phone: phone ?? this.phone,
       address: address ?? this.address,
       observation: observation ?? this.observation,
-      cityId: cityId ?? this.cityId,
       createAt: createAt ?? this.createAt,
       updateAt: updateAt ?? this.updateAt,
       deletedAt: deletedAt ?? this.deletedAt,

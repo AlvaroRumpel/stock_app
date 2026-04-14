@@ -10,33 +10,29 @@ sealed class CustomerCreateState extends Equatable {
 final class CustomerCreateInitial extends CustomerCreateState {}
 
 final class CustomerCreateData extends CustomerCreateState {
-  final List<City> cities;
-  final City selectedCity;
   final Customer? customer;
 
-  const CustomerCreateData({
-    required this.cities,
-    required this.selectedCity,
-    this.customer,
-  });
+  const CustomerCreateData({this.customer});
 
   CustomerCreateData copyWith({
-    List<City>? cities,
-    City? selectedCity,
     Customer? customer,
   }) {
     return CustomerCreateData(
-      cities: cities ?? this.cities,
-      selectedCity: selectedCity ?? this.selectedCity,
       customer: customer,
     );
   }
 
   @override
-  List<Object?> get props => [cities, customer, selectedCity];
+  List<Object?> get props => [customer];
 }
 
-final class CustomerCreateSuccessCreate extends CustomerCreateState {}
+final class CustomerCreateSuccessCreate extends CustomerCreateState {
+  final Customer customer;
+  const CustomerCreateSuccessCreate(this.customer);
+
+  @override
+  List<Object?> get props => [customer];
+}
 
 final class CustomerCreateLoading extends CustomerCreateState {}
 

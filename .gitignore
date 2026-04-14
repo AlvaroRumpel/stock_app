@@ -45,3 +45,10 @@ app.*.map.json
 /android/app/release
 
 .vscode/
+
+# Environment-specific API keys (copy example.json and rename)
+dart_defines/dev.json
+dart_defines/production.json
+
+# Claude Code internal files
+.claude/

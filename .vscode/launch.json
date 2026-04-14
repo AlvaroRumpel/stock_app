@@ -4,30 +4,35 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
         {
             "name": "Dev Debug",
             "request": "launch",
             "type": "dart",
             "flutterMode": "debug",
             "args": [
-                "--flavor",
-                "dev",
-                "--dart-define=REMOTE_URL=",
-                "--dart-define=REMOTE_KEY="
-            ],
+                "--flavor", "dev",
+                "--dart-define-from-file=dart_defines/dev.json"
+            ]
         },
         {
-            "name": "stock_app (profile mode)",
+            "name": "Dev Release",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "flutterMode": "release",
+            "args": [
+                "--flavor", "dev",
+                "--dart-define-from-file=dart_defines/dev.json"
+            ]
         },
         {
-            "name": "stock_app (release mode)",
+            "name": "Production Release",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
+            "flutterMode": "release",
+            "args": [
+                "--flavor", "production",
+                "--dart-define-from-file=dart_defines/production.json"
+            ]
         }
     ]
 }

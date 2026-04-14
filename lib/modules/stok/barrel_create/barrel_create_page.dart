@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-import '../../../shared/entities/product.dart';
 import '../../../shared/utils/formatters.dart';
 import '../../../shared/utils/message_mixin.dart';
 import '../../../shared/utils/string_extensions.dart';
@@ -23,13 +22,13 @@ class BarrelCreatePage extends StatefulWidget {
 class _BarrelCreatePageState extends State<BarrelCreatePage> with MessageMixin {
   final _formKey = GlobalKey<FormState>();
   final _batchController = TextEditingController();
-  final _quantityController = TextEditingController();
+  final _qty30Controller = TextEditingController();
+  final _qty50Controller = TextEditingController();
   final _costController = TextEditingController();
   final _sellController = TextEditingController();
   final _observationController = TextEditingController();
   DateTime? _expirationDate;
   final _expirationDateController = TextEditingController();
-  final _volumeSelected = ValueNotifier(VolumeEnum.v30);
 
   late final BarrelCreateCubit _cubit;
   @override
@@ -44,17 +43,17 @@ class _BarrelCreatePageState extends State<BarrelCreatePage> with MessageMixin {
       listener: (context, state) {
         if (state is BarrelCreateSuccess) {
           context.pop(true);
-          showSuccess(context, 'Barril cadastrado com sucesso!');
+          showSuccess(context, 'Lote cadastrado com sucesso!');
           return;
         }
 
         if (state is BarrelCreateError) {
-          showError(context, 'Erro ao cadastrar barril');
+          showError(context, state.message ?? 'Erro ao cadastrar lote');
           return;
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Novo barril')),
+        appBar: AppBar(title: const Text('Novo lote de barris')),
         body: BlocSelector<BarrelCreateCubit, BarrelCreateState, bool>(
           selector: (state) {
             return state is BarrelCreateLoading;
@@ -75,6 +74,9 @@ class _BarrelCreatePageState extends State<BarrelCreatePage> with MessageMixin {
                       hintText: 'Número do lote',
                       labelText: 'Número do lote',
                       validators: [Required()],
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(50),
+                      ],
                       suffix: InkWell(
                         child: const Icon(Icons.photo_camera_outlined),
                         onTap:
@@ -91,88 +93,52 @@ class _BarrelCreatePageState extends State<BarrelCreatePage> with MessageMixin {
                             ),
                       ),
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text('Volume'),
-                        ValueListenableBuilder(
-                          valueListenable: _volumeSelected,
-                          builder: (_, volumeSelected, child) {
-                            return Row(
-                              spacing: 4,
-                              children: [
-                                Row(
-                                  children: [
-                                    Radio<VolumeEnum>(
-                                      value: VolumeEnum.v30,
-                                      groupValue: volumeSelected,
-                                      onChanged: (volume) {
-                                        _volumeSelected.value =
-                                            volume ?? volumeSelected;
-                                      },
-                                    ),
-                                    const Text('30 litros'),
-                                  ],
-                                ),
-
-                                Row(
-                                  children: [
-                                    Radio<VolumeEnum>(
-                                      value: VolumeEnum.v50,
-                                      groupValue: volumeSelected,
-                                      onChanged: (volume) {
-                                        _volumeSelected.value =
-                                            volume ?? volumeSelected;
-                                      },
-                                    ),
-                                    const Text('50 litros'),
-                                  ],
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ],
-                    ),
                     Row(
                       spacing: 8,
                       children: [
                         Expanded(
                           child: CustomTextField(
-                            controller: _quantityController,
-                            hintText: 'Quantidade',
-                            labelText: 'Quantidade',
+                            controller: _qty30Controller,
+                            hintText: '0',
+                            labelText: 'Qtd. 30L',
                             keyboardType: TextInputType.number,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],
-                            validators: [Required()],
                           ),
                         ),
                         Expanded(
                           child: CustomTextField(
-                            controller: _expirationDateController,
-                            onTap: () async {
-                              final selectedDate = await showDatePicker(
-                                initialDate: _expirationDate,
-                                context: context,
-                                firstDate: DateTime.now(),
-                                lastDate: DateTime.utc(2100),
-                              );
-
-                              if (selectedDate != null) {
-                                _expirationDateController.text =
-                                    selectedDate.toStringFixed;
-                                _expirationDate = selectedDate;
-                              }
-                            },
-                            hintText: 'Validade',
-                            labelText: 'Validade',
-                            validators: [Required()],
+                            controller: _qty50Controller,
+                            hintText: '0',
+                            labelText: 'Qtd. 50L',
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
                           ),
                         ),
                       ],
+                    ),
+                    CustomTextField(
+                      controller: _expirationDateController,
+                      onTap: () async {
+                        final selectedDate = await showDatePicker(
+                          initialDate: _expirationDate,
+                          context: context,
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime.utc(2100),
+                          locale: const Locale('pt', 'BR'),
+                        );
+
+                        if (selectedDate != null) {
+                          _expirationDateController.text =
+                              selectedDate.toStringFixed;
+                          _expirationDate = selectedDate;
+                        }
+                      },
+                      hintText: 'Validade (opcional)',
+                      labelText: 'Validade',
                     ),
                     Row(
                       spacing: 8,
@@ -227,11 +193,20 @@ class _BarrelCreatePageState extends State<BarrelCreatePage> with MessageMixin {
               CustomButton(
                 onPressed: () async {
                   if (_formKey.currentState?.validate() ?? false) {
+                    final qty30 = int.tryParse(_qty30Controller.text) ?? 0;
+                    final qty50 = int.tryParse(_qty50Controller.text) ?? 0;
+                    if (qty30 <= 0 && qty50 <= 0) {
+                      showError(
+                        context,
+                        'Informe a quantidade de ao menos um volume',
+                      );
+                      return;
+                    }
                     await _cubit.createBarrel(
                       batchNumber: _batchController.text,
-                      volume: _volumeSelected.value,
-                      quantity: _quantityController.text,
-                      expirationDate: _expirationDate!,
+                      qty30l: _qty30Controller.text.isEmpty ? '0' : _qty30Controller.text,
+                      qty50l: _qty50Controller.text.isEmpty ? '0' : _qty50Controller.text,
+                      expirationDate: _expirationDate,
                       costPrice: _costController.text,
                       sellPrice: _sellController.text,
                       observation: _observationController.text,
@@ -252,20 +227,30 @@ class _BarrelCreatePageState extends State<BarrelCreatePage> with MessageMixin {
   }
 }
 
-class _CameraScan extends StatelessWidget with MessageMixin {
+class _CameraScan extends StatefulWidget {
   final void Function(String) onDetect;
 
   const _CameraScan({required this.onDetect});
+
+  @override
+  State<_CameraScan> createState() => _CameraScanState();
+}
+
+class _CameraScanState extends State<_CameraScan> with MessageMixin {
+  bool _detected = false;
+
   @override
   Widget build(BuildContext context) {
-    bool detected = false;
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(title: const Text('Aponte para o código de barras')),
       body: MobileScanner(
         onDetect: (capture) async {
-          if (detected) return;
-          onDetect(capture.barcodes.first.displayValue ?? '');
-          detected = true;
+          if (_detected) return;
+          if (capture.barcodes.isEmpty) return;
+          final value = capture.barcodes.first.displayValue;
+          if (value == null || value.isEmpty) return;
+          _detected = true;
+          widget.onDetect(value);
           await Future.delayed(Durations.medium4);
           if (context.mounted) {
             showSuccess(context, 'Código encontrado');

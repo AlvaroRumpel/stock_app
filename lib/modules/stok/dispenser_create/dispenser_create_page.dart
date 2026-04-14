@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../shared/entities/product.dart';
 import '../../../shared/utils/message_mixin.dart';
 import '../../../shared/utils/validation.dart';
 import '../../../shared/widgets/custom_button.dart';
@@ -21,13 +19,7 @@ class _DispenserCreatePageState extends State<DispenserCreatePage>
     with MessageMixin {
   final _formKey = GlobalKey<FormState>();
   final _identifyController = TextEditingController();
-  final _quantityController = TextEditingController();
-  final _costController = TextEditingController();
-  final _sellController = TextEditingController();
   final _observationController = TextEditingController();
-  DateTime? _expirationDate;
-  final _expirationDateController = TextEditingController();
-  final _volumeSelected = ValueNotifier(VolumeEnum.v30);
 
   late final DispenserCreateCubit _cubit;
   @override
@@ -73,10 +65,8 @@ class _DispenserCreatePageState extends State<DispenserCreatePage>
                       hintText: 'Identificação',
                       labelText: 'Identificação',
                       validators: [Required()],
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      keyboardType: TextInputType.text,
                     ),
-
                     CustomTextField(
                       controller: _observationController,
                       hintText: 'Observação',

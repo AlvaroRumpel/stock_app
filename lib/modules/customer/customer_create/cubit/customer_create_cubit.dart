@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
-import '../../../../shared/entities/city.dart';
 import '../../../../shared/entities/customer.dart';
 import '../../../../shared/repositories/customer_repository.dart';
 
@@ -13,33 +12,13 @@ class CustomerCreateCubit extends Cubit<CustomerCreateState> {
     : _repo = customerRepository,
       super(CustomerCreateInitial());
 
-  Future<void> getCities() async {
-    try {
-      emit(CustomerCreateLoading());
-      final cities = await _repo.getCities();
-      final selectedCity = cities.firstWhere((e) => e.code == 4319802);
-      emit(CustomerCreateData(cities: cities, selectedCity: selectedCity));
-    } catch (e) {
-      emit(CustomerCreateError());
-    }
-  }
-
-  void changeCity(City city) {
-    emit((state as CustomerCreateData).copyWith(selectedCity: city));
-  }
-
   Future<void> createCustomer({
     required String name,
     required String phone,
-    required String address,
+    String? address,
     required String observation,
   }) async {
     try {
-      final city =
-          state is CustomerCreateData
-              ? (state as CustomerCreateData).selectedCity
-              : null;
-
       final customerEdit =
           state is CustomerCreateData
               ? (state as CustomerCreateData).customer
@@ -50,21 +29,23 @@ class CustomerCreateCubit extends Cubit<CustomerCreateState> {
             name: name,
             phone: phone,
             address: address,
-            cityId: city?.id,
             observation: observation,
           ) ??
           Customer.newCustomer(
             name: name,
             phone: phone,
             address: address,
-            cityId: city?.id,
             observation: observation,
           );
 
-      customer.id.isNotEmpty
-          ? await _repo.updateCustomer(customer)
-          : await _repo.createCustomer(customer);
-      emit(CustomerCreateSuccessCreate());
+      final Customer savedCustomer;
+      if (customer.id.isNotEmpty) {
+        await _repo.updateCustomer(customer);
+        savedCustomer = customer;
+      } else {
+        savedCustomer = await _repo.createCustomer(customer);
+      }
+      emit(CustomerCreateSuccessCreate(savedCustomer));
     } catch (e) {
       emit(CustomerCreateError());
     }
@@ -72,18 +53,9 @@ class CustomerCreateCubit extends Cubit<CustomerCreateState> {
 
   Future<void> getCustomer(String customerId) async {
     try {
-      final oldState = state;
       emit(CustomerCreateLoading());
       final customer = await _repo.getCustomerById(customerId);
-      final selectedCity =
-          oldState is CustomerCreateData
-              ? oldState.cities.firstWhere((e) => e.id == customer.cityId)
-              : null;
-      emit(
-        oldState is CustomerCreateData
-            ? oldState.copyWith(customer: customer, selectedCity: selectedCity)
-            : oldState,
-      );
+      emit(CustomerCreateData(customer: customer));
     } catch (e) {
       emit(CustomerCreateError());
     }

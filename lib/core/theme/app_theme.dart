@@ -6,6 +6,7 @@ part 'app_colors.dart';
 part 'app_text.dart';
 
 class AppTheme {
+  // ignore: unused_field
   static final _lightTheme = ThemeData(
     brightness: Brightness.light,
     primaryColor: AppColors.lightPrimary100,

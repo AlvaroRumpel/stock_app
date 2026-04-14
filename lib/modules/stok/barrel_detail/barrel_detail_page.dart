@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/utils/context_extensions.dart';
 import '../../../shared/utils/string_extensions.dart';
@@ -10,7 +11,8 @@ import 'cubit/barrel_detail_cubit.dart';
 
 class BarrelDetailPage extends StatefulWidget {
   final String productId;
-  const BarrelDetailPage({super.key, required this.productId});
+  final String volume;
+  const BarrelDetailPage({super.key, required this.productId, required this.volume});
 
   @override
   State<BarrelDetailPage> createState() => _BarrelDetailPageState();
@@ -31,6 +33,12 @@ class _BarrelDetailPageState extends State<BarrelDetailPage> {
       listener: (context, state) {
         if (state is BarrelDetailDeleted) {
           context.pop(true);
+        }
+        if (state is BarrelDetailError && state.message != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message!)),
+          );
+          _cubit.load(widget.productId);
         }
       },
       child: Scaffold(
@@ -67,9 +75,14 @@ class _BarrelDetailPageState extends State<BarrelDetailPage> {
                         value: state.barrel.expirationDate.toStringFixed,
                       ),
                       LabelAndValue(
+                        label: 'Volume',
+                        value: '${widget.volume}L',
+                      ),
+                      LabelAndValue(
                         label: 'Quantidade',
-                        value:
-                            state.barrel.availableQuantity?.toString() ?? 'N/A',
+                        value: widget.volume == '30'
+                            ? (state.barrel.qty30l?.toString() ?? '0')
+                            : (state.barrel.qty50l?.toString() ?? '0'),
                       ),
                       LabelAndValue(
                         label: 'Preço de custo',
@@ -78,11 +91,6 @@ class _BarrelDetailPageState extends State<BarrelDetailPage> {
                       LabelAndValue(
                         label: 'Preço de venda',
                         value: state.barrel.salePrice.toCurrencyFixed,
-                      ),
-                      LabelAndValue(
-                        label: 'Volume',
-                        value:
-                            '${state.barrel.volume?.volume.toString() ?? 'N/A'} litros',
                       ),
                       LabelAndValue(
                         label: 'Observação',
@@ -102,9 +110,26 @@ class _BarrelDetailPageState extends State<BarrelDetailPage> {
             spacing: 16,
             children: [
               Expanded(
-                child: CustomButton.outlined(
-                  onPressed: () {},
-                  child: const Text('Editar'),
+                child: BlocSelector<BarrelDetailCubit, BarrelDetailState,
+                    dynamic>(
+                  selector: (state) =>
+                      state is BarrelDetailLoaded ? state.barrel : null,
+                  builder: (context, barrel) {
+                    return CustomButton.outlined(
+                      onPressed: () async {
+                        if (barrel == null) return;
+                        final result = await context.pushNamed<bool>(
+                          RouteName.editBarrel.name,
+                          pathParameters: {'id': barrel.id},
+                          extra: barrel,
+                        );
+                        if (result == true && context.mounted) {
+                          _cubit.load(widget.productId);
+                        }
+                      },
+                      child: const Text('Editar'),
+                    );
+                  },
                 ),
               ),
               Expanded(
@@ -117,7 +142,7 @@ class _BarrelDetailPageState extends State<BarrelDetailPage> {
                         false;
 
                     if (confirm) {
-                      await _cubit.deleteProduct(widget.productId);
+                      await _cubit.clearVolume(widget.productId, widget.volume);
                     }
                   },
                   child: const Text('Remover'),

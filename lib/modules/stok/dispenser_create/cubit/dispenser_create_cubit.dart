@@ -19,9 +19,8 @@ class DispenserCreateCubit extends Cubit<DispenserCreateState> {
     try {
       emit(BarrelCreateLoading());
       final dispenser = Product.newProduct(
-        identifyNumber: int.tryParse(identify),
+        identifyNumber: identify,
         observation: observation,
-        availableQuantity: 1,
         type: ProductTypeEnum.dispenser,
       );
       await _repo.createProduct(dispenser);

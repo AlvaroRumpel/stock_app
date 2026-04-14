@@ -28,10 +28,6 @@ class ProductRepository {
     try {
       final response = await _remote.fetchData(Product.tableName);
 
-      if (response.isEmpty) {
-        throw EmptyFromFetch();
-      }
-
       return response.map(Product.fromMap).toList();
     } catch (e, s) {
       throw FailedToFetch(error: e, stackTrace: s);
@@ -49,6 +45,40 @@ class ProductRepository {
     } catch (e, s) {
       throw RemoteDataException(
         message: 'Failed to update customer with id ${product.id}',
+        error: e,
+        stackTrace: s,
+      );
+    }
+  }
+
+  Future<void> clearProductVolume(String productId, String volume) async {
+    try {
+      final product = await getProductById(productId);
+
+      final bool otherVolumeEmpty;
+      final Map<String, dynamic> data;
+
+      if (volume == '30') {
+        otherVolumeEmpty = (product.qty50l ?? 0) == 0;
+        data = {'qty_30l': 0};
+      } else {
+        otherVolumeEmpty = (product.qty30l ?? 0) == 0;
+        data = {'qty_50l': 0};
+      }
+
+      if (otherVolumeEmpty) {
+        await deleteProductById(productId);
+      } else {
+        await _remote.updateData(
+          table: Product.tableName,
+          data: data,
+          column: 'id',
+          value: productId,
+        );
+      }
+    } catch (e, s) {
+      throw RemoteDataException(
+        message: 'Failed to clear volume $volume for product $productId',
         error: e,
         stackTrace: s,
       );

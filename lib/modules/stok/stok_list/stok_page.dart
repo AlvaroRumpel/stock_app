@@ -45,10 +45,6 @@ class _StokPageState extends State<StokPage>
         child: Column(
           spacing: 16,
           children: [
-            CustomTabBar(
-              tabController: _tabController,
-              tabs: ['Barris', 'Chopeiras'],
-            ),
             Align(
               alignment: Alignment.centerRight,
               child: CustomButton.outlined(
@@ -64,6 +60,10 @@ class _StokPageState extends State<StokPage>
                 child: const Text('Novo produto'),
               ),
             ),
+            CustomTabBar(
+              tabController: _tabController,
+              tabs: ['Barris', 'Chopeiras'],
+            ),
             BlocSelector<StokCubit, StokState, (List<Product>, List<Product>)>(
               selector: (state) {
                 return state is StokData
@@ -71,23 +71,35 @@ class _StokPageState extends State<StokPage>
                     : ([], []);
               },
               builder: (context, state) {
+                // Split barrel products by volume
+                final barrelItems = [
+                  for (final b in state.$1) ...[
+                    if ((b.qty30l ?? 0) > 0) (b, '30L', b.qty30l!),
+                    if ((b.qty50l ?? 0) > 0) (b, '50L', b.qty50l!),
+                  ],
+                ];
+
                 return Expanded(
                   child: TabBarView(
                     controller: _tabController,
                     children: [
                       Visibility(
-                        visible: state.$1.isNotEmpty,
+                        visible: barrelItems.isNotEmpty,
                         replacement: const Center(
                           child: Text('Nenhum barril encontrado'),
                         ),
                         child: ListView.separated(
                           itemBuilder: (context, index) {
-                            final barrel = state.$1[index];
-                            return _BarrelCard(barrel: barrel);
+                            final item = barrelItems[index];
+                            return _BarrelCard(
+                              barrel: item.$1,
+                              volumeLabel: item.$2,
+                              qty: item.$3,
+                            );
                           },
                           separatorBuilder:
-                              (_, __) => const SizedBox(height: 16),
-                          itemCount: state.$1.length,
+                              (_, _) => const SizedBox(height: 16),
+                          itemCount: barrelItems.length,
                         ),
                       ),
                       Visibility(
@@ -101,7 +113,7 @@ class _StokPageState extends State<StokPage>
                             return _DispenserCard(dispenser: dispenser);
                           },
                           separatorBuilder:
-                              (_, __) => const SizedBox(height: 16),
+                              (_, _) => const SizedBox(height: 16),
                           itemCount: state.$2.length,
                         ),
                       ),
@@ -208,21 +220,28 @@ class _AddProductBottomSheet extends StatelessWidget {
 
 class _BarrelCard extends StatelessWidget {
   final Product barrel;
+  final String volumeLabel;
+  final int qty;
 
-  const _BarrelCard({required this.barrel});
+  const _BarrelCard({
+    required this.barrel,
+    required this.volumeLabel,
+    required this.qty,
+  });
+
   @override
   Widget build(BuildContext context) {
+    final isNearExpiry =
+        (barrel.expirationDate?.difference(DateTime.now()).inDays ?? 8) <= 7;
+
     return Material(
+      color: Colors.transparent,
       child: Stack(
         children: [
-          Positioned(
-            right: 36,
-            top: 8,
-            child: Visibility(
-              visible:
-                  (barrel.expirationDate?.difference(DateTime.now()).inDays ??
-                      8) <=
-                  7,
+          if (isNearExpiry)
+            Positioned(
+              right: 36,
+              top: 8,
               child: Badge(
                 backgroundColor: const Color(0xFFFFFFA1),
                 label: Text(
@@ -233,22 +252,21 @@ class _BarrelCard extends StatelessWidget {
                 ),
               ),
             ),
-          ),
           InkWell(
             onTap: () async {
               await context.pushNamed(
                 RouteName.detailBarrel.name,
                 pathParameters: {'id': barrel.id},
+                queryParameters: {'volume': volumeLabel.replaceAll('L', '')},
               );
-
               if (context.mounted) context.read<StokCubit>().getProducts();
             },
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(16),
             child: Ink(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               decoration: BoxDecoration(
                 color: AppColors.darkBg200,
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
                 spacing: 8,
@@ -256,32 +274,34 @@ class _BarrelCard extends StatelessWidget {
                   SizedBox(height: 40, child: Image.asset(AppAssets.barrel)),
                   Expanded(
                     child: Column(
-                      spacing: 8,
+                      spacing: 6,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Barril - ${barrel.volume?.volume}L',
+                          'Barril - $volumeLabel',
                           style: context.textStyle.headlineSmall,
                         ),
                         Wrap(
                           spacing: 8,
                           children: [
                             Text(
-                              'Qtd.: ${barrel.availableQuantity}',
+                              'Qtd.: $qty',
                               style: context.textStyle.labelLarge,
                             ),
+                            if (barrel.batchNumber != null) ...[
+                              Container(
+                                color: AppColors.darkAvatar100,
+                                height: 16,
+                                width: 1,
+                              ),
+                              Text(
+                                'Lote: ${barrel.batchNumber}',
+                                style: context.textStyle.labelLarge,
+                              ),
+                            ],
                             Container(
                               color: AppColors.darkAvatar100,
-                              height: 20,
-                              width: 1,
-                            ),
-                            Text(
-                              'Lote: ${barrel.batchNumber}',
-                              style: context.textStyle.bodyLarge,
-                            ),
-                            Container(
-                              color: AppColors.darkAvatar100,
-                              height: 20,
+                              height: 16,
                               width: 1,
                             ),
                             Text(
@@ -311,46 +331,63 @@ class _DispenserCard extends StatelessWidget {
   final Product dispenser;
 
   const _DispenserCard({required this.dispenser});
+
   @override
   Widget build(BuildContext context) {
     return Material(
+      color: Colors.transparent,
       child: Stack(
         children: [
           Positioned(
             right: 36,
             top: 8,
             child: Badge(
-              backgroundColor:
-                  dispenser.availableQuantity != null &&
-                          dispenser.availableQuantity! > 0
-                      ? const Color(0xFF4A9A3B)
-                      : const Color(0xFFF39000),
+              backgroundColor: dispenser.isAvailable
+                  ? const Color(0xFF4A9A3B)
+                  : const Color(0xFFF39000),
               label: Text(
-                dispenser.availableQuantity != null &&
-                        dispenser.availableQuantity! > 0
-                    ? 'Disponível'
-                    : 'Indisponível',
+                dispenser.isAvailable ? 'Disponível' : 'Indisponível',
                 style: context.textStyle.labelSmall,
               ),
             ),
           ),
           InkWell(
-            onTap: () {},
-            borderRadius: BorderRadius.circular(30),
+            onTap: () async {
+              await context.pushNamed(
+                RouteName.detailDispenser.name,
+                pathParameters: {'id': dispenser.id},
+              );
+              if (context.mounted) context.read<StokCubit>().getProducts();
+            },
+            borderRadius: BorderRadius.circular(16),
             child: Ink(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               decoration: BoxDecoration(
                 color: AppColors.darkBg200,
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
                 spacing: 8,
                 children: [
                   SizedBox(height: 40, child: Image.asset(AppAssets.faucet)),
                   Expanded(
-                    child: Text(
-                      'Chopeira - ${dispenser.identifyNumber}',
-                      style: context.textStyle.headlineSmall,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 4,
+                      children: [
+                        Text(
+                          'Chopeira - ${dispenser.identifyNumber ?? 'N/A'}',
+                          style: context.textStyle.headlineSmall,
+                        ),
+                        if (!dispenser.isAvailable &&
+                            dispenser.returnDate != null)
+                          Text(
+                            'Previsão devolução: ${dispenser.returnDate.toStringFixed}',
+                            style: context.textStyle.bodySmall?.copyWith(
+                              color: AppColors.darkPrimary300,
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                   const Icon(

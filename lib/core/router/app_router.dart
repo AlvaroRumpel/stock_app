@@ -8,18 +8,31 @@ import '../../modules/customer/customer_details/bloc/customer_details_cubit.dart
 import '../../modules/customer/customer_details/customer_details.dart';
 import '../../modules/customer/customers_list/cubit/customer_list_cubit.dart';
 import '../../modules/customer/customers_list/customers_page.dart';
+import '../../modules/home/cubit/home_cubit.dart';
 import '../../modules/home/home_page.dart';
-import '../../modules/sales/sales_page.dart';
+import '../../modules/sales/sale_create/cubit/sale_create_cubit.dart';
+import '../../modules/sales/sale_create/sale_create_page.dart';
+import '../../modules/sales/sale_detail/cubit/sale_detail_cubit.dart';
+import '../../modules/sales/sale_detail/sale_detail_page.dart';
+import '../../modules/sales/sales_list/cubit/sales_cubit.dart';
+import '../../modules/sales/sales_list/sales_page.dart';
+import '../../modules/sales/sale_edit/add_items_page.dart';
+import '../../modules/sales/sale_edit/sale_edit_page.dart';
 import '../../modules/stok/barrel_create/barrel_create_page.dart';
+import '../../modules/stok/barrel_create/barrel_edit_page.dart';
 import '../../modules/stok/barrel_create/cubit/barrel_create_cubit.dart';
 import '../../modules/stok/barrel_detail/barrel_detail_page.dart';
 import '../../modules/stok/barrel_detail/cubit/barrel_detail_cubit.dart';
 import '../../modules/stok/dispenser_create/cubit/dispenser_create_cubit.dart';
 import '../../modules/stok/dispenser_create/dispenser_create_page.dart';
+import '../../modules/stok/dispenser_create/dispenser_edit_page.dart';
+import '../../modules/stok/dispenser_detail/cubit/dispenser_detail_cubit.dart';
+import '../../modules/stok/dispenser_detail/dispenser_detail_page.dart';
 import '../../modules/stok/stok_list/cubit/stok_cubit.dart';
 import '../../modules/stok/stok_list/stok_page.dart';
 import '../../shared/repositories/customer_repository.dart';
 import '../../shared/repositories/product_repository.dart';
+import '../../shared/repositories/sale_repository.dart';
 import '../../shared/services/remote_data_service_impl.dart';
 import '../../shared/widgets/scaffold_with_navigation_bar.dart';
 
@@ -47,7 +60,28 @@ class AppRouter {
                   GoRoute(
                     path: RouteName.home.path,
                     name: RouteName.home.name,
-                    builder: (context, state) => const HomePage(),
+                    builder: (context, state) {
+                      final remote = RemoteDataServiceImpl.instance;
+                      return MultiRepositoryProvider(
+                        providers: [
+                          RepositoryProvider(
+                            create: (context) =>
+                                SaleRepository(remote: remote),
+                          ),
+                          RepositoryProvider(
+                            create: (context) =>
+                                ProductRepository(remote: remote),
+                          ),
+                        ],
+                        child: BlocProvider(
+                          create: (context) => HomeCubit(
+                            saleRepo: context.read<SaleRepository>(),
+                            productRepo: context.read<ProductRepository>(),
+                          ),
+                          child: const HomePage(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -56,7 +90,125 @@ class AppRouter {
                   GoRoute(
                     path: RouteName.sales.path,
                     name: RouteName.sales.name,
-                    builder: (context, state) => const SalesPage(),
+                    builder:
+                        (context, state) => RepositoryProvider(
+                          create:
+                              (context) => SaleRepository(
+                                remote: RemoteDataServiceImpl.instance,
+                              ),
+                          child: BlocProvider(
+                            create:
+                                (context) => SalesCubit(
+                                  repo: context.read<SaleRepository>(),
+                                ),
+                            child: const SalesPage(),
+                          ),
+                        ),
+                    routes: [
+                      GoRoute(
+                        path: RouteName.createSale.path,
+                        name: RouteName.createSale.name,
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) {
+                          final remote = RemoteDataServiceImpl.instance;
+                          return MultiRepositoryProvider(
+                            providers: [
+                              RepositoryProvider(
+                                create:
+                                    (context) =>
+                                        SaleRepository(remote: remote),
+                              ),
+                              RepositoryProvider(
+                                create:
+                                    (context) =>
+                                        CustomerRepository(remote: remote),
+                              ),
+                              RepositoryProvider(
+                                create:
+                                    (context) =>
+                                        ProductRepository(remote: remote),
+                              ),
+                            ],
+                            child: BlocProvider(
+                              create:
+                                  (context) => SaleCreateCubit(
+                                    saleRepo: context.read<SaleRepository>(),
+                                    customerRepo:
+                                        context.read<CustomerRepository>(),
+                                    productRepo:
+                                        context.read<ProductRepository>(),
+                                  ),
+                              child: const SaleCreatePage(),
+                            ),
+                          );
+                        },
+                      ),
+                      GoRoute(
+                        path: '${RouteName.saleDetails.path}/:id',
+                        name: RouteName.saleDetails.name,
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) {
+                          final id = state.pathParameters['id']!;
+                          return RepositoryProvider(
+                            create:
+                                (context) => SaleRepository(
+                                  remote: RemoteDataServiceImpl.instance,
+                                ),
+                            child: BlocProvider(
+                              create:
+                                  (context) => SaleDetailCubit(
+                                    repo: context.read<SaleRepository>(),
+                                  ),
+                              child: SaleDetailPage(saleId: id),
+                            ),
+                          );
+                        },
+                      ),
+                      GoRoute(
+                        path: '${RouteName.editSale.path}/:id',
+                        name: RouteName.editSale.name,
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) {
+                          final sale = state.extra as dynamic;
+                          return RepositoryProvider(
+                            create: (context) => SaleRepository(
+                              remote: RemoteDataServiceImpl.instance,
+                            ),
+                            child: BlocProvider(
+                              create: (context) => SaleDetailCubit(
+                                repo: context.read<SaleRepository>(),
+                              ),
+                              child: SaleEditPage(sale: sale),
+                            ),
+                          );
+                        },
+                      ),
+                      GoRoute(
+                        path: '${RouteName.addSaleItems.path}/:id',
+                        name: RouteName.addSaleItems.name,
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) {
+                          final id = state.pathParameters['id']!;
+                          final remote = RemoteDataServiceImpl.instance;
+                          return MultiRepositoryProvider(
+                            providers: [
+                              RepositoryProvider(
+                                create: (context) => SaleRepository(remote: remote),
+                              ),
+                              RepositoryProvider(
+                                create: (context) => ProductRepository(remote: remote),
+                              ),
+                            ],
+                            child: BlocProvider(
+                              create: (context) => SaleDetailCubit(
+                                repo: context.read<SaleRepository>(),
+                              ),
+                              child: AddItemsPage(saleId: id),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -124,17 +276,101 @@ class AppRouter {
                         parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) {
                           final id = state.pathParameters['id']!;
-                          return RepositoryProvider(
-                            create:
-                                (context) => ProductRepository(
-                                  remote: RemoteDataServiceImpl.instance,
-                                ),
+                          final volume = state.uri.queryParameters['volume'] ?? '30';
+                          final remote = RemoteDataServiceImpl.instance;
+                          return MultiRepositoryProvider(
+                            providers: [
+                              RepositoryProvider(
+                                create: (context) => ProductRepository(remote: remote),
+                              ),
+                              RepositoryProvider(
+                                create: (context) => SaleRepository(remote: remote),
+                              ),
+                            ],
                             child: BlocProvider(
-                              create:
-                                  (context) => BarrelDetailCubit(
-                                    repo: context.read<ProductRepository>(),
-                                  ),
-                              child: BarrelDetailPage(productId: id),
+                              create: (context) => BarrelDetailCubit(
+                                repo: context.read<ProductRepository>(),
+                                saleRepo: context.read<SaleRepository>(),
+                              ),
+                              child: BarrelDetailPage(productId: id, volume: volume),
+                            ),
+                          );
+                        },
+                      ),
+                      GoRoute(
+                        path: '${RouteName.editBarrel.path}/:id',
+                        name: RouteName.editBarrel.name,
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) {
+                          final barrel = state.extra as dynamic;
+                          final remote = RemoteDataServiceImpl.instance;
+                          return MultiRepositoryProvider(
+                            providers: [
+                              RepositoryProvider(
+                                create: (context) => ProductRepository(remote: remote),
+                              ),
+                              RepositoryProvider(
+                                create: (context) => SaleRepository(remote: remote),
+                              ),
+                            ],
+                            child: BlocProvider(
+                              create: (context) => BarrelDetailCubit(
+                                repo: context.read<ProductRepository>(),
+                                saleRepo: context.read<SaleRepository>(),
+                              ),
+                              child: BarrelEditPage(barrel: barrel),
+                            ),
+                          );
+                        },
+                      ),
+                      GoRoute(
+                        path: '${RouteName.detailDispenser.path}/:id',
+                        name: RouteName.detailDispenser.name,
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) {
+                          final id = state.pathParameters['id']!;
+                          final remote = RemoteDataServiceImpl.instance;
+                          return MultiRepositoryProvider(
+                            providers: [
+                              RepositoryProvider(
+                                create: (context) => ProductRepository(remote: remote),
+                              ),
+                              RepositoryProvider(
+                                create: (context) => SaleRepository(remote: remote),
+                              ),
+                            ],
+                            child: BlocProvider(
+                              create: (context) => DispenserDetailCubit(
+                                repo: context.read<ProductRepository>(),
+                                saleRepo: context.read<SaleRepository>(),
+                              ),
+                              child: DispenserDetailPage(productId: id),
+                            ),
+                          );
+                        },
+                      ),
+                      GoRoute(
+                        path: '${RouteName.editDispenser.path}/:id',
+                        name: RouteName.editDispenser.name,
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) {
+                          final dispenser = state.extra as dynamic;
+                          final remote = RemoteDataServiceImpl.instance;
+                          return MultiRepositoryProvider(
+                            providers: [
+                              RepositoryProvider(
+                                create: (context) => ProductRepository(remote: remote),
+                              ),
+                              RepositoryProvider(
+                                create: (context) => SaleRepository(remote: remote),
+                              ),
+                            ],
+                            child: BlocProvider(
+                              create: (context) => DispenserDetailCubit(
+                                repo: context.read<ProductRepository>(),
+                                saleRepo: context.read<SaleRepository>(),
+                              ),
+                              child: DispenserEditPage(dispenser: dispenser),
                             ),
                           );
                         },

@@ -137,11 +137,6 @@ class _CustomerDetailsPageState extends State<CustomerDetailsPage>
                           customer.phone,
                           style: const TextStyle(fontSize: 16),
                         ),
-                        const Text('Endereço:'),
-                        Text(
-                          customer.address ?? 'Sem endereço',
-                          style: const TextStyle(fontSize: 16),
-                        ),
                         const Text('Observações:'),
                         Text(
                           customer.observation.isNotNullAndNotEmpty

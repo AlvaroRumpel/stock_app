@@ -15,9 +15,9 @@ class BarrelCreateCubit extends Cubit<BarrelCreateState> {
 
   Future<void> createBarrel({
     required String batchNumber,
-    required VolumeEnum volume,
-    required String quantity,
-    required DateTime expirationDate,
+    required String qty30l,
+    required String qty50l,
+    DateTime? expirationDate,
     required String costPrice,
     required String sellPrice,
     String? observation,
@@ -26,8 +26,8 @@ class BarrelCreateCubit extends Cubit<BarrelCreateState> {
       emit(BarrelCreateLoading());
       final barrel = Product.newProduct(
         batchNumber: batchNumber,
-        volume: volume,
-        availableQuantity: int.parse(quantity),
+        qty30l: int.tryParse(qty30l) ?? 0,
+        qty50l: int.tryParse(qty50l) ?? 0,
         expirationDate: expirationDate,
         costPrice: double.parse(costPrice.toCurrencyFixed),
         salePrice: double.parse(sellPrice.toCurrencyFixed),
@@ -37,7 +37,7 @@ class BarrelCreateCubit extends Cubit<BarrelCreateState> {
       await _repo.createProduct(barrel);
       emit(BarrelCreateSuccess());
     } catch (e) {
-      emit(BarrelCreateError());
+      emit(BarrelCreateError(message: e.toString()));
     }
   }
 }

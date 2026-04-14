@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_theme.dart';
-import '../../../shared/entities/city.dart';
 import '../../../shared/utils/formatters.dart';
 import '../../../shared/utils/message_mixin.dart';
 import '../../../shared/utils/string_extensions.dart';
@@ -35,7 +34,6 @@ class _CustomerCreatePageState extends State<CustomerCreatePage>
     _cubit = context.read<CustomerCreateCubit>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _cubit.getCities();
       if (widget.customerId.isNotNullAndNotEmpty) {
         await _cubit.getCustomer(widget.customerId!);
       }
@@ -58,7 +56,7 @@ class _CustomerCreatePageState extends State<CustomerCreatePage>
     return BlocListener<CustomerCreateCubit, CustomerCreateState>(
       listener: (context, state) {
         if (state is CustomerCreateSuccessCreate) {
-          context.pop(true);
+          context.pop(state.customer);
           showSuccess(context, 'Cliente cadastrado com sucesso!');
           return;
         }
@@ -135,61 +133,6 @@ class _CustomerCreatePageState extends State<CustomerCreatePage>
                           labelText: 'Endereço',
                           keyboardType: TextInputType.streetAddress,
                         ),
-                        BlocSelector<
-                          CustomerCreateCubit,
-                          CustomerCreateState,
-                          List<City>
-                        >(
-                          selector: (state) {
-                            return state is CustomerCreateData
-                                ? state.cities
-                                : [];
-                          },
-                          builder: (context, state) {
-                            if (state.isEmpty) {
-                              return const SizedBox.shrink();
-                            }
-                            return Autocomplete<City>(
-                              onSelected: (option) => _cubit.changeCity(option),
-
-                              optionsBuilder: (textEditingValue) {
-                                return state.where(
-                                  (e) => e.cityName.clean().contains(
-                                    textEditingValue.text.clean(),
-                                  ),
-                                );
-                              },
-                              optionsViewOpenDirection:
-                                  OptionsViewOpenDirection.up,
-                              displayStringForOption:
-                                  (option) => option.cityName,
-
-                              initialValue:
-                                  _cubit.state is CustomerCreateData
-                                      ? TextEditingValue(
-                                        text:
-                                            (_cubit.state as CustomerCreateData)
-                                                .selectedCity
-                                                .cityName,
-                                      )
-                                      : const TextEditingValue(),
-                              fieldViewBuilder:
-                                  (
-                                    context,
-                                    textEditingController,
-                                    focusNode,
-                                    onFieldSubmitted,
-                                  ) => CustomTextField(
-                                    focusNode: focusNode,
-                                    controller: textEditingController,
-                                    hintText: 'Cidade',
-                                    labelText: 'Cidade',
-                                    keyboardType: TextInputType.streetAddress,
-                                    onFieldSubmitted: onFieldSubmitted,
-                                  ),
-                            );
-                          },
-                        ),
                         CustomTextField(
                           controller: _observationController,
                           hintText: 'Observação',
@@ -217,7 +160,9 @@ class _CustomerCreatePageState extends State<CustomerCreatePage>
                     await _cubit.createCustomer(
                       name: _nameController.text,
                       phone: _phoneController.text,
-                      address: _addressController.text,
+                      address: _addressController.text.isEmpty
+                          ? null
+                          : _addressController.text,
                       observation: _observationController.text,
                     );
                   }

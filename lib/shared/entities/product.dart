@@ -6,14 +6,16 @@ class Product {
   final DateTime? updatedAt;
   final DateTime? deletedAt;
   final String? batchNumber;
-  final VolumeEnum? volume;
-  final int? availableQuantity;
+  final int? qty30l;
+  final int? qty50l;
   final DateTime? expirationDate;
   final double? costPrice;
   final double? salePrice;
-  final int? identifyNumber;
+  final String? identifyNumber;
   final String? observation;
   final ProductTypeEnum type;
+  final bool isAvailable;
+  final DateTime? returnDate;
 
   static String get tableName => 'product';
 
@@ -23,20 +25,22 @@ class Product {
     this.updatedAt,
     this.deletedAt,
     this.batchNumber,
-    this.volume,
-    this.availableQuantity,
+    this.qty30l,
+    this.qty50l,
     this.expirationDate,
     this.costPrice,
     this.salePrice,
     this.identifyNumber,
     this.observation,
     required this.type,
+    this.isAvailable = true,
+    this.returnDate,
   });
 
   Product.newProduct({
     this.batchNumber,
-    this.volume,
-    this.availableQuantity,
+    this.qty30l,
+    this.qty50l,
     this.expirationDate,
     this.costPrice,
     this.salePrice,
@@ -45,14 +49,16 @@ class Product {
     required this.type,
     this.updatedAt,
     this.deletedAt,
+    this.isAvailable = true,
+    this.returnDate,
   }) : id = '',
        createdAt = DateTime.now();
 
   Map<String, dynamic> toMap() {
     return {
       'batch_number': batchNumber,
-      'volume': volume?.volume.toString(),
-      'available_quantity': availableQuantity,
+      'qty_30l': qty30l,
+      'qty_50l': qty50l,
       'expiration_date': expirationDate?.toIso8601String(),
       'cost_price': costPrice,
       'sale_price': salePrice,
@@ -61,6 +67,8 @@ class Product {
       'type': type.toString(),
       'updated_at': updatedAt?.toIso8601String(),
       'deleted_at': deletedAt?.toIso8601String(),
+      'is_available': isAvailable,
+      'return_date': returnDate?.toIso8601String(),
     };
   }
 
@@ -73,9 +81,8 @@ class Product {
       deletedAt:
           map['deleted_at'] != null ? DateTime.parse(map['deleted_at']) : null,
       batchNumber: map['batch_number'],
-      volume:
-          map['volume'] != null ? VolumeEnum.fromString(map['volume']) : null,
-      availableQuantity: map['available_quantity'],
+      qty30l: map['qty_30l'],
+      qty50l: map['qty_50l'],
       expirationDate:
           map['expiration_date'] != null
               ? DateTime.parse(map['expiration_date'])
@@ -88,9 +95,14 @@ class Product {
           map['sale_price'] != null
               ? double.tryParse(map['sale_price'].toString())
               : null,
-      identifyNumber: map['identify_number'],
+      identifyNumber: map['identify_number']?.toString(),
       observation: map['observation'],
       type: ProductTypeEnum.fromString(map['type']),
+      isAvailable: map['is_available'] as bool? ?? true,
+      returnDate:
+          map['return_date'] != null
+              ? DateTime.parse(map['return_date'])
+              : null,
     );
   }
 
@@ -105,14 +117,16 @@ class Product {
     DateTime? updatedAt,
     DateTime? deletedAt,
     String? batchNumber,
-    VolumeEnum? volume,
-    int? availableQuantity,
+    int? qty30l,
+    int? qty50l,
     DateTime? expirationDate,
     double? costPrice,
     double? salePrice,
-    int? identifyNumber,
+    String? identifyNumber,
     String? observation,
     ProductTypeEnum? type,
+    bool? isAvailable,
+    DateTime? returnDate,
   }) {
     return Product(
       id: id ?? this.id,
@@ -120,14 +134,16 @@ class Product {
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
       batchNumber: batchNumber ?? this.batchNumber,
-      volume: volume ?? this.volume,
-      availableQuantity: availableQuantity ?? this.availableQuantity,
+      qty30l: qty30l ?? this.qty30l,
+      qty50l: qty50l ?? this.qty50l,
       expirationDate: expirationDate ?? this.expirationDate,
       costPrice: costPrice ?? this.costPrice,
       salePrice: salePrice ?? this.salePrice,
       identifyNumber: identifyNumber ?? this.identifyNumber,
       observation: observation ?? this.observation,
       type: type ?? this.type,
+      isAvailable: isAvailable ?? this.isAvailable,
+      returnDate: returnDate ?? this.returnDate,
     );
   }
 }

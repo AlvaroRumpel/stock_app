@@ -47,13 +47,11 @@ class _CustomersPageState extends State<CustomersPage> with MessageMixin {
                 child: CustomButton.outlined(
                   expanded: false,
                   onPressed: () async {
-                    final result =
-                        (await context.pushNamed<bool>(
-                          RouteName.createCustomer.name,
-                        )) ??
-                        false;
+                    final result = await context.pushNamed(
+                      RouteName.createCustomer.name,
+                    );
 
-                    if (result) {
+                    if (result != null) {
                       _cubit.fetchAllCustomers();
                     }
                   },
